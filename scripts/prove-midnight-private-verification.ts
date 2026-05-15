@@ -7,6 +7,12 @@ const boundary = createLocalMidnightPrivacyBoundary({
   now: () => "2026-05-16T00:00:00.000Z",
 });
 
+const assert = (condition: boolean, message: string) => {
+  if (!condition) {
+    throw new Error(message);
+  }
+};
+
 const privatePaySlip =
   "Pay slip for Asha Rao at BluePeak Labs. Gross annual cash compensation INR 4,420,000.";
 const privateResume =
@@ -102,5 +108,24 @@ const output = {
     note: "Receipt reveals approved precise claim only; raw evidence body remains outside recruiter flows.",
   },
 };
+
+assert(
+  output.commitmentsVerified.every(Boolean),
+  "Midnight claim commitment verification failed",
+);
+assert(output.disclosureReceiptVerified, "Midnight disclosure receipt verification failed");
+assert(
+  output.privacyCheck.rawEvidenceVisible === false,
+  "Recruiter-visible proof output leaked raw private evidence",
+);
+assert(
+  containsPrivateEvidence(recruiterView, [
+    privatePaySlip,
+    privateResume,
+    "INR 44.2L gross annual cash compensation",
+    "BluePeak Labs, 38-person seed startup",
+  ]) === false,
+  "Recruiter view leaked precise claim or raw evidence",
+);
 
 console.log(JSON.stringify(output, null, 2));

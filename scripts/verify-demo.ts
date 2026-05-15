@@ -25,6 +25,7 @@ const [
   fixtureSource,
   globalsCss,
   shellSource,
+  uploadDemoSource,
   homePage,
   candidatePage,
   recruiterPage,
@@ -33,6 +34,7 @@ const [
   readProjectFile("src/lib/fixtures.ts"),
   readProjectFile("src/app/globals.css"),
   readProjectFile("src/components/app-shell.tsx"),
+  readProjectFile("src/components/evidence-upload-demo.tsx"),
   readProjectFile("src/app/page.tsx"),
   readProjectFile("src/app/candidate-vault/page.tsx"),
   readProjectFile("src/app/recruiter-search/page.tsx"),
@@ -65,8 +67,13 @@ assert(fixtureSource.includes('state: "approved"'), "Missing approved Disclosure
 assert(fixtureSource.includes('state: "denied"'), "Missing denied Disclosure Grant state");
 assert(fixtureSource.includes("midnight:"), "Missing Midnight receipts");
 assert(candidatePage.includes("raw visible: {String(document.rawTextVisible)}"), "Candidate page must show raw-doc boundary state");
+assert(candidatePage.includes("<EvidenceUploadDemo />"), "Candidate vault must include demo upload path");
+assert(uploadDemoSource.includes("buildDemoVaultFromSubmittedEvidence"), "Upload demo must run submitted evidence through pipeline");
+assert(uploadDemoSource.includes("Private evidence text"), "Upload demo must expose text evidence input");
 assert(recruiterPage.includes("Raw documents shown"), "Recruiter page must state raw documents hidden");
 assert(disclosurePage.includes("Raw document text stays sealed."), "Disclosure page must show sealed evidence state");
+assert(disclosurePage.includes("Precise value sealed until candidate approval."), "Pending disclosure must not reveal precise value");
+assert(!disclosurePage.includes("requestedClaim.preciseValue"), "Pending disclosure must not render requested precise value");
 assert(!recruiterPage.includes("rawText"), "Recruiter page must not read raw evidence text");
 
 assert(globalsCss.includes("--primary: #533afd"), "Missing DESIGN.md indigo CTA token");

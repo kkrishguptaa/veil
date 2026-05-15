@@ -50,8 +50,10 @@ export default function DisclosurePage() {
               </div>
               <div className="mt-4 rounded-lg bg-[var(--brand-dark)] p-4 text-white">
                 <div className="text-sm text-white/70">If approved</div>
-                <div className="mt-2">{requestedClaim.preciseValue}</div>
-                <div className="mt-3 text-sm text-white/70">Raw document text stays sealed.</div>
+                <div className="mt-2">Precise value sealed until candidate approval.</div>
+                <div className="mt-3 text-sm text-white/70">
+                  Pending recruiters see only the coarse claim. Raw document text stays sealed.
+                </div>
               </div>
               <div className="tabular mt-4 text-xs text-[var(--ink-mute)]">{requestedGrant.midnightReceipt}</div>
             </div>

@@ -6,6 +6,30 @@ import type {
   VerifiedClaim,
 } from "./domain";
 
+type DisclosureDecision = Extract<DisclosureGrant["state"], "approved" | "denied">;
+
+export interface DisclosureMutationResult {
+  grants: DisclosureGrant[];
+  auditEvents: AuditEvent[];
+  grant: DisclosureGrant;
+  auditEvent: AuditEvent;
+}
+
+export interface RequestDisclosureGrantInput
+  extends Omit<DisclosureGrant, "id" | "state" | "requestedAt" | "midnightReceipt" | "decidedAt"> {
+  actorRecruiterId: string;
+  requestedAt?: string;
+}
+
+export interface DecideDisclosureGrantInput {
+  grantId: string;
+  decision: DisclosureDecision;
+  actorCandidateId: string;
+  decidedAt?: string;
+}
+
+const disclosureClock = () => new Date(0).toISOString();
+
 export function buildAnonymousRecruiterView(vault: CandidateVault): RecruiterView {
   const coarseClaims = vault.verifiedClaims
     .filter((claim) => claim.privacyLevel === "coarse")
@@ -42,6 +66,7 @@ export function getRecruiterVisibleClaim(
 ) {
   const approvedGrant = grants.find(
     (grant) =>
+      grant.candidateId === claim.candidateId &&
       grant.claimId === claim.id &&
       grant.recruiterId === recruiterId &&
       grant.state === "approved",
@@ -59,37 +84,97 @@ export function getRecruiterVisibleClaim(
 
 export function requestDisclosureGrant(
   grants: DisclosureGrant[],
-  input: Omit<DisclosureGrant, "id" | "state" | "requestedAt" | "midnightReceipt">,
-): DisclosureGrant[] {
-  return [
-    ...grants,
-    {
-      ...input,
-      id: `grant-${input.claimId}-${input.recruiterId}`,
-      state: "requested",
-      requestedAt: new Date(0).toISOString(),
-      midnightReceipt: `midnight:grant-request:${input.claimId}:${input.recruiterId}`,
-    },
-  ];
+  auditEvents: AuditEvent[],
+  input: RequestDisclosureGrantInput,
+): DisclosureMutationResult {
+  if (input.actorRecruiterId !== input.recruiterId) {
+    throw new Error("recruiter can request disclosure only for their own recruiter scope");
+  }
+
+  const requestedAt = input.requestedAt ?? disclosureClock();
+  const grant: DisclosureGrant = {
+    candidateId: input.candidateId,
+    recruiterId: input.recruiterId,
+    recruiterName: input.recruiterName,
+    claimId: input.claimId,
+    id: `grant-${input.claimId}-${input.recruiterId}`,
+    state: "requested",
+    requestedAt,
+    midnightReceipt: `midnight:grant-request:${input.claimId}:${input.recruiterId}`,
+  };
+  const auditEvent = makeAuditEvent(
+    grant,
+    "recruiter",
+    "disclosure.requested",
+    grant.requestedAt,
+  );
+
+  return {
+    grants: [...grants, grant],
+    auditEvents: [...auditEvents, auditEvent],
+    grant,
+    auditEvent,
+  };
 }
 
 export function decideDisclosureGrant(
   grants: DisclosureGrant[],
-  grantId: string,
-  decision: Extract<DisclosureGrant["state"], "approved" | "denied">,
-): DisclosureGrant[] {
-  return grants.map((grant) =>
-    grant.id === grantId
-      ? {
-          ...grant,
-          state: decision,
-          decidedAt: new Date(0).toISOString(),
-          midnightReceipt: `midnight:grant-${decision}:${grant.claimId}:${grant.recruiterId}`,
-        }
-      : grant,
+  auditEvents: AuditEvent[],
+  input: DecideDisclosureGrantInput,
+): DisclosureMutationResult {
+  const grant = grants.find((candidateGrant) => candidateGrant.id === input.grantId);
+
+  if (!grant) {
+    throw new Error(`disclosure grant not found: ${input.grantId}`);
+  }
+  if (grant.candidateId !== input.actorCandidateId) {
+    throw new Error("candidate can decide disclosure only for their own vault");
+  }
+  if (grant.state !== "requested") {
+    throw new Error("disclosure grant decisions require requested state");
+  }
+
+  const decidedAt = input.decidedAt ?? disclosureClock();
+  const decidedGrant: DisclosureGrant = {
+    ...grant,
+    state: input.decision,
+    decidedAt,
+    midnightReceipt: `midnight:grant-${input.decision}:${grant.claimId}:${grant.recruiterId}`,
+  };
+  const auditEvent = makeAuditEvent(
+    decidedGrant,
+    "candidate",
+    input.decision === "approved" ? "disclosure.approved" : "disclosure.denied",
+    decidedAt,
   );
+
+  return {
+    grants: grants.map((candidateGrant) =>
+      candidateGrant.id === input.grantId ? decidedGrant : candidateGrant,
+    ),
+    auditEvents: [...auditEvents, auditEvent],
+    grant: decidedGrant,
+    auditEvent,
+  };
 }
 
 export function getCandidateAuditEvents(events: AuditEvent[], candidateId: string) {
   return events.filter((event) => event.candidateId === candidateId);
+}
+
+function makeAuditEvent(
+  grant: DisclosureGrant,
+  actor: AuditEvent["actor"],
+  action: AuditEvent["action"],
+  timestamp: string,
+): AuditEvent {
+  return {
+    id: `audit-${action}-${grant.claimId}-${grant.recruiterId}`,
+    candidateId: grant.candidateId,
+    actor,
+    action,
+    targetId: grant.claimId,
+    timestamp,
+    receipt: grant.midnightReceipt,
+  };
 }

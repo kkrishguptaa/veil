@@ -41,18 +41,59 @@ describe("privacy boundary", () => {
   });
 
   it("records request and decision state transitions", () => {
-    const requested = requestDisclosureGrant([], {
+    const requested = requestDisclosureGrant([], [], {
       candidateId: "candidate-7kq",
       recruiterId: "recruiter-test",
+      actorRecruiterId: "recruiter-test",
       recruiterName: "Test Recruiter",
       claimId: "claim-7kq-performance",
     });
-    const decided = decideDisclosureGrant(requested, requested[0].id, "denied");
+    const decided = decideDisclosureGrant(requested.grants, requested.auditEvents, {
+      grantId: requested.grant.id,
+      decision: "denied",
+      actorCandidateId: "candidate-7kq",
+    });
 
-    expect(requested[0].state).toBe("requested");
-    expect(decided[0].state).toBe("denied");
-    expect(decided[0].midnightReceipt).toContain("midnight:grant-denied");
-    expect(decided[0].recruiterId).toBe("recruiter-test");
+    expect(requested.grant.state).toBe("requested");
+    expect(requested.auditEvent.action).toBe("disclosure.requested");
+    expect(requested.auditEvent.actor).toBe("recruiter");
+    expect(decided.grant.state).toBe("denied");
+    expect(decided.grant.midnightReceipt).toContain("midnight:grant-denied");
+    expect(decided.grant.recruiterId).toBe("recruiter-test");
+    expect(decided.auditEvents.map((event) => event.action)).toEqual([
+      "disclosure.requested",
+      "disclosure.denied",
+    ]);
+  });
+
+  it("rejects out-of-scope disclosure mutations", () => {
+    expect(() =>
+      requestDisclosureGrant([], [], {
+        candidateId: "candidate-7kq",
+        recruiterId: "recruiter-test",
+        actorRecruiterId: "recruiter-other",
+        recruiterName: "Test Recruiter",
+        claimId: "claim-7kq-performance",
+      }),
+    ).toThrow("recruiter can request disclosure only for their own recruiter scope");
+
+    expect(() =>
+      decideDisclosureGrant(disclosureGrants, [], {
+        grantId: "grant-7kq-leadership-northstar",
+        decision: "approved",
+        actorCandidateId: "candidate-other",
+      }),
+    ).toThrow("candidate can decide disclosure only for their own vault");
+  });
+
+  it("allows decisions only from requested grants", () => {
+    expect(() =>
+      decideDisclosureGrant(disclosureGrants, [], {
+        grantId: "grant-7kq-tenure-northstar",
+        decision: "denied",
+        actorCandidateId: "candidate-7kq",
+      }),
+    ).toThrow("disclosure grant decisions require requested state");
   });
 
   it("shows candidate audit events for privacy-sensitive actions", () => {
