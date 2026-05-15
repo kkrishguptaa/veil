@@ -33,7 +33,7 @@ export default async function Home() {
               Open Candidate Vault
             </Link>
             <Link href="/recruiter-search" className="rounded-full border border-[var(--primary)] bg-white px-5 py-3 text-[var(--primary)]">
-              Search Anonymous Views
+              Search approved views
             </Link>
           </div>
         </div>
