@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { CandidateVault, VerifiedClaim } from "../domain";
 import { candidateVaults } from "../fixtures";
-import { searchRecruiterViews } from "../matching";
+import { parseRecruiterSearchIntent, searchRecruiterViews } from "../matching";
 
 describe("recruiter matching", () => {
   it("ranks approved anonymous views for the backend startup compensation query", () => {
@@ -52,6 +52,12 @@ describe("recruiter matching", () => {
     );
   });
 
+  it("parses recruiter budget variants robustly", () => {
+    expect(parseRecruiterSearchIntent("backend under ₹50L").maxCompensationLakh).toBe(50);
+    expect(parseRecruiterSearchIntent("platform budget INR 48 lakh").maxCompensationLakh).toBe(48);
+    expect(parseRecruiterSearchIntent("engineer less than Rs 5000000").maxCompensationLakh).toBe(50);
+  });
+
   it("matches requested role and startup stage from coarse claims", () => {
     const vaults = [
       makeVault("candidate-backend-seed", "Backend Seed", [
@@ -73,6 +79,12 @@ describe("recruiter matching", () => {
 
     expect(results[0].view.anonymousHandle).toBe("Backend Seed");
     expect(results[0].matchScore).toBeGreaterThan(results[1].matchScore);
+  });
+
+  it("parses recruiter budget variants robustly", () => {
+    expect(parseRecruiterSearchIntent("backend under ₹50L").maxCompensationLakh).toBe(50);
+    expect(parseRecruiterSearchIntent("platform budget INR 48 lakh").maxCompensationLakh).toBe(48);
+    expect(parseRecruiterSearchIntent("engineer less than Rs 5000000").maxCompensationLakh).toBe(50);
   });
 });
 

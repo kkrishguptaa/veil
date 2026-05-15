@@ -1,4 +1,10 @@
-import type { CandidateVault, ClaimKind, RecruiterSearchResult, RecruiterVisibleClaim } from "./domain";
+import type {
+  CandidateVault,
+  ClaimKind,
+  RecruiterSearchResult,
+  RecruiterView,
+  RecruiterVisibleClaim,
+} from "./domain";
 import { buildAnonymousRecruiterView } from "./privacy";
 
 const queryWeights: Record<ClaimKind, number> = {
@@ -13,16 +19,47 @@ const queryWeights: Record<ClaimKind, number> = {
   "performance-tier": 0,
 };
 
+export interface RecruiterSearchIntent {
+  normalizedQuery: string;
+  wantsBackend: boolean;
+  wantsStartup: boolean;
+  desiredSkills: string[];
+  maxCompensationLakh: number | null;
+}
+
+interface ParsedRecruiterQuery {
+  normalized: string;
+  roleFamilies: Set<"backend" | "frontend" | "fullstack" | "mobile" | "manager">;
+  skills: Set<string>;
+  startupStages: Set<"seed" | "series-a" | "series-b" | "series-c" | "growth">;
+  wantsStartup: boolean;
+  seniority: Set<"senior" | "staff" | "principal" | "lead">;
+  budget?: {
+    maxLakh: number;
+  };
+}
+
 export function searchRecruiterViews(
   vaults: CandidateVault[],
   query: string,
 ): RecruiterSearchResult[] {
+  return searchApprovedRecruiterViews(
+    vaults
+      .filter((vault) => vault.approvedForDiscovery)
+      .map(buildAnonymousRecruiterView),
+    query,
+  );
+}
+
+export function searchApprovedRecruiterViews(
+  views: RecruiterView[],
+  query: string,
+): RecruiterSearchResult[] {
   const parsedQuery = parseRecruiterQuery(query);
 
-  return vaults
-    .filter((vault) => vault.approvedForDiscovery)
-    .map((vault) => {
-      const view = buildAnonymousRecruiterView(vault);
+  return views
+    .filter((view) => view.approvedForDiscovery)
+    .map((view) => {
       const explanation: string[] = [];
       let score = 0;
 
@@ -46,15 +83,15 @@ export function searchRecruiterViews(
     .sort((a, b) => b.matchScore - a.matchScore);
 }
 
-interface ParsedRecruiterQuery {
-  normalized: string;
-  roleFamilies: Set<"backend" | "frontend" | "fullstack" | "mobile" | "manager">;
-  skills: Set<string>;
-  startupStages: Set<"seed" | "series-a" | "series-b" | "series-c" | "growth">;
-  wantsStartup: boolean;
-  seniority: Set<"senior" | "staff" | "principal" | "lead">;
-  budget?: {
-    maxLakh: number;
+export function parseRecruiterSearchIntent(query: string): RecruiterSearchIntent {
+  const parsed = parseRecruiterQuery(query);
+
+  return {
+    normalizedQuery: parsed.normalized,
+    wantsBackend: parsed.roleFamilies.has("backend"),
+    wantsStartup: parsed.wantsStartup,
+    desiredSkills: [...parsed.skills],
+    maxCompensationLakh: parsed.budget?.maxLakh ?? null,
   };
 }
 
@@ -78,7 +115,7 @@ function scoreClaim(query: ParsedRecruiterQuery, claim: RecruiterVisibleClaim) {
 }
 
 function parseRecruiterQuery(query: string): ParsedRecruiterQuery {
-  const normalized = query.toLowerCase();
+  const normalized = normalizeCurrency(query);
 
   return {
     normalized,
@@ -153,25 +190,32 @@ function compensationMatches(query: ParsedRecruiterQuery, claimValue: string) {
 
 function parseBudget(normalizedQuery: string) {
   const lakhMatch = normalizedQuery.match(
-    /(?:under|below|up to|upto|<=|less than|max(?:imum)?|budget)\s*(?:inr|₹|rs\.?)?\s*(\d+(?:\.\d+)?)\s*(?:l|lakh|lakhs)/,
+    /(?:under|below|up to|upto|<=|less than|max(?:imum)?|within|budget)\s*(?:inr|rs\.?|rupees)?\s*(\d+(?:\.\d+)?)\s*(?:l|lakh|lakhs)/,
   );
   if (lakhMatch) {
     return { maxLakh: Number(lakhMatch[1]) };
   }
 
   const rupeeMatch = normalizedQuery.match(
-    /(?:under|below|up to|upto|<=|less than|max(?:imum)?|budget)\s*(?:inr|₹|rs\.?)?\s*(\d{7,})/,
+    /(?:under|below|up to|upto|<=|less than|max(?:imum)?|within|budget)\s*(?:inr|rs\.?|rupees)?\s*(\d{7,})/,
   );
   if (rupeeMatch) {
     return { maxLakh: Number(rupeeMatch[1]) / 100000 };
+  }
+
+  const bareBudget = normalizedQuery.match(
+    /(?:under|below|up to|upto|<=|less than|max(?:imum)?|within|budget)\s*(\d+(?:\.\d+)?)\b/,
+  );
+  if (bareBudget) {
+    return { maxLakh: Number(bareBudget[1]) };
   }
 
   return undefined;
 }
 
 function parseCompensationRange(value: string) {
-  const normalized = value.toLowerCase();
-  const rangeMatch = normalized.match(/(?:inr|₹|rs\.?)?\s*(\d+(?:\.\d+)?)\s*l\s*-\s*(\d+(?:\.\d+)?)\s*l/);
+  const normalized = normalizeCurrency(value);
+  const rangeMatch = normalized.match(/(?:inr|rs\.?)?\s*(\d+(?:\.\d+)?)\s*l\s*-\s*(\d+(?:\.\d+)?)\s*l/);
   if (rangeMatch) {
     return {
       lowerLakh: Number(rangeMatch[1]),
@@ -179,7 +223,7 @@ function parseCompensationRange(value: string) {
     };
   }
 
-  const lakhMatch = normalized.match(/(?:inr|₹|rs\.?)?\s*(\d+(?:\.\d+)?)\s*(?:l|lakh|lakhs)/);
+  const lakhMatch = normalized.match(/(?:inr|rs\.?)?\s*(\d+(?:\.\d+)?)\s*(?:l|lakh|lakhs)/);
   if (lakhMatch) {
     const lakh = Number(lakhMatch[1]);
     return { lowerLakh: lakh, upperLakh: lakh };
@@ -200,4 +244,14 @@ function parseStartupStages(value: string) {
 
 function hasAny(value: string, terms: string[]) {
   return terms.some((term) => value.includes(term));
+}
+
+function normalizeCurrency(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/₹/g, "inr ")
+    .replace(/\brs\.?/g, "inr")
+    .replace(/\blpa\b/g, "l")
+    .replace(/\blakhs\b/g, "lakh")
+    .replace(/,/g, "");
 }
