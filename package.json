@@ -1,0 +1,35 @@
+{
+  "name": "veil",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run verify:demo && npm run typecheck && npm test && npm run prove:midnight && npm run build",
+    "verify:demo": "node scripts/verify-demo.mjs",
+    "prove:midnight": "node scripts/prove-midnight-private-verification.mjs",
+    "test": "vitest run && node --test test/midnight-private-verification.test.mjs",
+    "test:unit": "vitest run",
+    "test:privacy": "node --test test/midnight-private-verification.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "next": "^16.2.6",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.0",
+    "@types/node": "^25.8.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6"
+  }
+}
