@@ -33,7 +33,14 @@ const disclosureClock = () => new Date(0).toISOString();
 export function buildAnonymousRecruiterView(vault: CandidateVault): RecruiterView {
   const coarseClaims = vault.verifiedClaims
     .filter((claim) => claim.privacyLevel === "coarse")
-    .map(({ preciseValue: _preciseValue, ...claim }) => claim);
+    .map(
+      ({
+        preciseValue: _preciseValue,
+        midnightPrivateClaim: _midnightPrivateClaim,
+        midnightPublicClaim: _midnightPublicClaim,
+        ...claim
+      }) => claim,
+    );
   const gatedClaimKinds = vault.verifiedClaims
     .filter((claim) => claim.privacyLevel === "precise")
     .map((claim) => claim.kind);

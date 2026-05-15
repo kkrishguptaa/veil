@@ -8,7 +8,7 @@ import type {
   VeilStoreState,
 } from "./domain";
 import { auditEvents, candidateVaults, disclosureGrants } from "./fixtures";
-import { buildAnonymousRecruiterView } from "./privacy";
+import { sealRecruiterViewForSeed } from "./midnight-seed-materialize";
 
 export interface VeilStore {
   read(): Promise<VeilStoreState>;
@@ -32,7 +32,7 @@ export function createSeedStoreState(): VeilStoreState {
     verifiedClaims: candidateVaults.flatMap((vault) => vault.verifiedClaims),
     recruiterViews: candidateVaults
       .filter((vault) => vault.approvedForDiscovery)
-      .map(buildAnonymousRecruiterView),
+      .map(sealRecruiterViewForSeed),
     disclosureGrants,
     auditEvents,
   };

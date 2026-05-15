@@ -1,3 +1,5 @@
+import type { PrivateClaim, PublicClaim } from "../privacy/midnight-private-verification";
+
 export const claimKinds = [
   "role-family",
   "skills",
@@ -65,9 +67,15 @@ export interface VerifiedClaim {
   extractionNotes: string;
   source: ClaimSource;
   midnightCommitment: string;
+  /** Candidate vault / server only; never project into recruiter-visible payloads */
+  midnightPrivateClaim?: Readonly<PrivateClaim>;
+  midnightPublicClaim?: Readonly<PublicClaim>;
 }
 
-export type RecruiterVisibleClaim = Omit<VerifiedClaim, "preciseValue">;
+export type RecruiterVisibleClaim = Omit<
+  VerifiedClaim,
+  "preciseValue" | "midnightPrivateClaim" | "midnightPublicClaim"
+>;
 
 export interface ClaimProvenance {
   evidenceId: string;
@@ -107,6 +115,9 @@ export interface RecruiterView {
   coarseClaims: RecruiterVisibleClaim[];
   gatedClaimKinds: ClaimKind[];
   visibleReceipts: string[];
+  /** Set when the view is sealed via the Midnight privacy boundary */
+  recruiterViewId?: string;
+  midnightRecruiterViewCommitment?: string;
 }
 
 export interface RecruiterSearchResult {

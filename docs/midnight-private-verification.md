@@ -16,6 +16,10 @@ The small boundary exposed to later slices is `src/privacy/midnight-private-veri
 
 Later UI/API work should call this boundary rather than depending on Midnight internals.
 
+## App integration
+
+`src/lib/product-service.ts` routes evidence upload, claim materialization, recruiter-view approval, disclosure grant requests, and disclosure approvals through `createLocalMidnightPrivacyBoundary` / the same primitives (`createVerifiedClaim`, `approveRecruiterView`, `requestDisclosureGrant`, `approveDisclosureGrant`, `verifyDisclosureReceipt`). Verified claims in the JSON store carry vault-only `midnightPrivateClaim` payloads for candidate disclosure decisions; recruiter-visible projections strip those fields in `buildAnonymousRecruiterView`. Fixture seed data is hydrated in `src/lib/midnight-seed-materialize.ts`.
+
 ## Chosen Midnight Path
 
 The real Midnight implementation should use a Compact contract named `VeilClaimRegistry.compact` with three ledger concepts:
