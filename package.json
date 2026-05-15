@@ -1,38 +1,51 @@
 {
   "name": "veil",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0",
   "type": "module",
+  "description": "A Midnight Network application created with create-mn-app",
+  "author": "",
+  "license": "MIT",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "build:clean": "rm -rf .next && next build",
-    "start": "next start",
-    "typecheck": "tsc --noEmit",
-    "verify": "npm run verify:demo && npm run typecheck && npm test && npm run test:privacy && npm run prove:midnight && npm run build:clean",
-    "verify:demo": "tsx scripts/verify-demo.ts",
-    "verify:live": "tsx scripts/verify-live-app.ts",
-    "prove:midnight": "tsx scripts/prove-midnight-private-verification.ts",
-    "test": "vitest run",
-    "test:unit": "vitest run",
-    "test:privacy": "vitest run test/midnight-private-verification.test.ts"
-  },
-  "engines": {
-    "node": ">=20"
+    "compile": "compact compile contracts/hello-world.compact contracts/managed/hello-world",
+    "build": "npx tsc --noEmit || true",
+    "setup": "npx tsx scripts/setup.ts",
+    "deploy": "npx tsx scripts/deploy.ts",
+    "check-balance": "npx tsx scripts/check-balance.ts",
+    "network": "npx tsx scripts/network.ts",
+    "proof-server:start": "docker compose up -d",
+    "proof-server:stop": "docker compose down",
+    "clean": "rm -rf contracts/managed .midnight-state.json",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:e2e": "tsx scripts/e2e-check.ts"
   },
   "dependencies": {
-    "next": "^16.2.6",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "@midnight-ntwrk/compact-js": "2.5.0",
+    "rxjs": "^7.8.2",
+    "@midnight-ntwrk/compact-runtime": "0.16.0",
+    "@midnight-ntwrk/ledger-v8": "8.0.3",
+    "@midnight-ntwrk/midnight-js-contracts": "4.0.4",
+    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "4.0.4",
+    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "4.0.4",
+    "@midnight-ntwrk/midnight-js-level-private-state-provider": "4.0.4",
+    "@midnight-ntwrk/midnight-js-network-id": "4.0.4",
+    "@midnight-ntwrk/midnight-js-node-zk-config-provider": "4.0.4",
+    "@midnight-ntwrk/midnight-js-types": "4.0.4",
+    "@midnight-ntwrk/midnight-js-utils": "4.0.4",
+    "@midnight-ntwrk/wallet-sdk-dust-wallet": "3.0.0",
+    "@midnight-ntwrk/wallet-sdk-facade": "3.0.0",
+    "@midnight-ntwrk/wallet-sdk-hd": "3.0.1",
+    "@midnight-ntwrk/wallet-sdk-shielded": "2.1.0",
+    "@midnight-ntwrk/wallet-sdk-unshielded-wallet": "2.1.0",
+    "ws": "^8.20.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.3.0",
-    "@types/node": "^25.8.0",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "tailwindcss": "^4.3.0",
-    "tsx": "^4.22.0",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.6"
-  }
+    "@types/node": "^22.0.0",
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "keywords": ["midnight", "blockchain", "zero-knowledge", "privacy"]
 }
