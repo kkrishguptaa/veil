@@ -52,6 +52,7 @@ describe("privacy boundary", () => {
     expect(requested[0].state).toBe("requested");
     expect(decided[0].state).toBe("denied");
     expect(decided[0].midnightReceipt).toContain("midnight:grant-denied");
+    expect(decided[0].recruiterId).toBe("recruiter-test");
   });
 
   it("shows candidate audit events for privacy-sensitive actions", () => {
@@ -62,5 +63,6 @@ describe("privacy boundary", () => {
     expect(actions).toContain("recruiter-view.approved");
     expect(actions).toContain("disclosure.requested");
     expect(actions).toContain("disclosure.approved");
+    expect(actions).toContain("disclosure.denied");
   });
 });

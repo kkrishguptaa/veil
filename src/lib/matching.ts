@@ -28,7 +28,9 @@ export function searchRecruiterViews(
         const contribution = scoreClaim(query, claim);
         if (contribution > 0) {
           score += contribution;
-          explanation.push(`${claim.label}: ${claim.coarseValue}`);
+          explanation.push(
+            `${claim.label}: ${claim.coarseValue} (${Math.round(claim.confidence * 100)}% confidence, ${claim.evidenceIds.length} evidence ref${claim.evidenceIds.length === 1 ? "" : "s"})`,
+          );
         }
       }
 
@@ -64,6 +66,6 @@ function hasAny(value: string, terms: string[]) {
 }
 
 function isUnderInr50L(value: string) {
-  const upperBound = value.match(/(\d+)L(?:\s|-)/)?.[1] ?? value.match(/-(\d+)L/)?.[1];
+  const upperBound = value.match(/-(\d+)L/)?.[1] ?? value.match(/(\d+)L(?:\s|$)/)?.[1];
   return upperBound ? Number(upperBound) <= 50 : false;
 }

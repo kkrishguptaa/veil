@@ -26,6 +26,8 @@ export type PrivacyLevel = "coarse" | "precise" | "sealed";
 
 export type DisclosureState = "requested" | "approved" | "denied";
 
+export type ClaimSource = "ai-intelligence-pipeline" | "fixture";
+
 export type AuditAction =
   | "evidence.uploaded"
   | "ai.extracted"
@@ -58,10 +60,26 @@ export interface VerifiedClaim {
   privacyLevel: PrivacyLevel;
   confidence: number;
   evidenceIds: string[];
+  provenance: ClaimProvenance[];
+  privacyPolicy: ClaimPrivacyPolicy;
+  extractionNotes: string;
+  source: ClaimSource;
   midnightCommitment: string;
 }
 
 export type RecruiterVisibleClaim = Omit<VerifiedClaim, "preciseValue">;
+
+export interface ClaimProvenance {
+  evidenceId: string;
+  documentKind: EvidenceDocumentKind;
+  support: "direct" | "derived";
+}
+
+export interface ClaimPrivacyPolicy {
+  defaultVisibility: "recruiter-view" | "gated" | "sealed";
+  preciseClaimRequiresDisclosureGrant: boolean;
+  rawEvidenceVisibleToRecruiter: false;
+}
 
 export interface CandidateVault {
   candidateId: string;

@@ -1,10 +1,9 @@
-import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import { describe, expect, it } from "vitest";
 
 import {
   containsPrivateEvidence,
   createLocalMidnightPrivacyBoundary,
-} from "../src/privacy/midnight-private-verification.mjs";
+} from "../src/privacy/midnight-private-verification";
 
 const boundary = createLocalMidnightPrivacyBoundary({
   now: () => "2026-05-16T00:00:00.000Z",
@@ -59,18 +58,16 @@ describe("Midnight-backed private verification boundary", () => {
   it("creates verifiable claim commitments without exposing raw evidence", () => {
     const { compensation } = buildFixture();
 
-    assert.equal(
+    expect(
       boundary.verifyClaimCommitment({
         privateClaim: compensation.privateClaim,
         commitment: compensation.publicClaim.commitment,
       }),
-      true,
-    );
+    ).toBe(true);
 
-    assert.equal(
+    expect(
       containsPrivateEvidence(compensation.publicClaim, [rawPaySlip, rawResume, "Northstar AI"]),
-      false,
-    );
+    ).toBe(false);
   });
 
   it("detects tampered precise claims against the original commitment", () => {
@@ -80,13 +77,12 @@ describe("Midnight-backed private verification boundary", () => {
       preciseValue: "INR 25L annual compensation",
     };
 
-    assert.equal(
+    expect(
       boundary.verifyClaimCommitment({
         privateClaim: tamperedPrivateClaim,
         commitment: compensation.publicClaim.commitment,
       }),
-      false,
-    );
+    ).toBe(false);
   });
 
   it("requires candidate approval before building recruiter-visible views", () => {
@@ -99,20 +95,19 @@ describe("Midnight-backed private verification boundary", () => {
       publicClaims: [compensation.publicClaim, skills.publicClaim],
     });
 
-    assert.equal(recruiterView.status, "approved");
-    assert.deepEqual(
-      recruiterView.publicClaims.map((claim) => claim.type),
-      ["compensation_band", "skills"],
-    );
-    assert.equal(
+    expect(recruiterView.status).toBe("approved");
+    expect(recruiterView.publicClaims.map((claim) => claim.type)).toEqual([
+      "compensation_band",
+      "skills",
+    ]);
+    expect(
       containsPrivateEvidence(recruiterView, [
         rawPaySlip,
         rawResume,
         "Northstar AI",
         "INR 48.5L annual compensation",
       ]),
-      false,
-    );
+    ).toBe(false);
   });
 
   it("creates and verifies disclosure receipts for precise claim upgrades only", () => {
@@ -139,18 +134,17 @@ describe("Midnight-backed private verification boundary", () => {
       candidateApprovedBy: "candidate_mira",
     });
 
-    assert.equal(receipt.status, "approved");
-    assert.deepEqual(receipt.disclosedClaim, {
+    expect(receipt.status).toBe("approved");
+    expect(receipt.disclosedClaim).toEqual({
       preciseValue: "INR 48.5L annual compensation",
     });
-    assert.equal(
+    expect(
       boundary.verifyDisclosureReceipt({
         receipt,
         privateClaim: compensation.privateClaim,
         publicClaim: compensation.publicClaim,
       }),
-      true,
-    );
-    assert.equal(containsPrivateEvidence(receipt, [rawPaySlip, rawResume, "Northstar AI"]), false);
+    ).toBe(true);
+    expect(containsPrivateEvidence(receipt, [rawPaySlip, rawResume, "Northstar AI"])).toBe(false);
   });
 });

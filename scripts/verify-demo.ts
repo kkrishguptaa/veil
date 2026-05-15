@@ -18,7 +18,8 @@ const requiredFlow = [
   "Disclosure Grant",
 ];
 
-const readProjectFile = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
+const readProjectFile = (path: string) =>
+  readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 const [
   fixtureSource,
@@ -40,7 +41,7 @@ const [
 
 const appSource = [homePage, candidatePage, recruiterPage, disclosurePage].join("\n");
 
-const assert = (condition, message) => {
+const assert = (condition: boolean, message: string) => {
   if (!condition) {
     throw new Error(message);
   }
@@ -58,9 +59,10 @@ const candidateCount = (fixtureSource.match(/legalName:/g) ?? []).length;
 const evidenceCount = (fixtureSource.match(/rawText:/g) ?? []).length;
 
 assert(candidateCount >= 3, "Expected candidate fixtures");
-assert((fixtureSource.match(/rawText:/g) ?? []).length >= 3, "Expected private raw Evidence Document fixtures");
+assert(evidenceCount >= 3, "Expected private raw Evidence Document fixtures");
 assert(fixtureSource.includes('state: "requested"'), "Missing requested Disclosure Grant state");
 assert(fixtureSource.includes('state: "approved"'), "Missing approved Disclosure Grant state");
+assert(fixtureSource.includes('state: "denied"'), "Missing denied Disclosure Grant state");
 assert(fixtureSource.includes("midnight:"), "Missing Midnight receipts");
 assert(candidatePage.includes("raw visible: {String(document.rawTextVisible)}"), "Candidate page must show raw-doc boundary state");
 assert(recruiterPage.includes("Raw documents shown"), "Recruiter page must state raw documents hidden");
