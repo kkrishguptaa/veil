@@ -92,7 +92,7 @@ export function EvidenceUploadDemo() {
         </form>
 
         <div>
-          <div className="rounded-lg bg-white/75 p-4">
+          <div className="mt-4 rounded-lg border border-[var(--hairline)] p-4" aria-live="polite" aria-atomic="true">
             <div className="text-sm text-[var(--ink-mute)]">Vault metadata from submitted evidence</div>
             <div className="mt-2 font-medium">{demoVault.evidenceDocuments[0].title}</div>
             <div className="mt-2 text-sm text-[var(--ink-secondary)]">
