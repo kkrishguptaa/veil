@@ -2,6 +2,10 @@
 
 Midnight Network application — local setup and scripts are documented in `README.md`.
 
+## Design
+
+@DESIGN.md
+
 ## Agent skills
 
 ### Issue tracker
