@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import type { EvidenceDocument } from "../domain";
-import { buildDemoVaultFromSubmittedEvidence } from "../demo-upload";
 import {
   classifyEvidenceDocument,
   createLocalDeterministicProvider,
@@ -58,29 +57,5 @@ describe("AI intelligence pipeline scaffold", () => {
   it("rejects unsafe recruiting intelligence outputs", () => {
     expect(rejectUnsafeIntelligence("Strong culture fit and personality score")).toBe(false);
     expect(rejectUnsafeIntelligence("Backend systems claim supported by offer letter")).toBe(true);
-  });
-
-  it("builds a demo vault from submitted text evidence through the AI pipeline", () => {
-    const vault = buildDemoVaultFromSubmittedEvidence({
-      title: "Candidate pasted offer packet",
-      rawText:
-        "Offer letter for Staff backend platform role at Series B startup. TypeScript privacy systems, INR 48L cash, led 7 engineers across 4 years tenure.",
-      kind: "other",
-    });
-
-    expect(vault.evidenceDocuments).toHaveLength(1);
-    expect(vault.evidenceDocuments[0].midnightCommitment).toMatch(/^midnight:commitment:/);
-    expect(vault.verifiedClaims.map((claim) => claim.kind)).toEqual(
-      expect.arrayContaining([
-        "role-family",
-        "skills",
-        "seniority",
-        "startup-exposure",
-        "compensation-band",
-        "leadership-scope",
-        "employment-tenure",
-      ]),
-    );
-    expect(vault.verifiedClaims.every((claim) => claim.source === "ai-intelligence-pipeline")).toBe(true);
   });
 });

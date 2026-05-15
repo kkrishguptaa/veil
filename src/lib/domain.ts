@@ -91,6 +91,14 @@ export interface CandidateVault {
   aiSummary: string;
 }
 
+export interface CandidateRecord {
+  candidateId: string;
+  legalName: string;
+  anonymousHandle: string;
+  approvedForDiscovery: boolean;
+  createdAt: string;
+}
+
 export interface RecruiterView {
   candidateId: string;
   anonymousHandle: string;
@@ -127,4 +135,14 @@ export interface AuditEvent {
   targetId: string;
   timestamp: string;
   receipt?: string;
+}
+
+export interface VeilStoreState {
+  schemaVersion: 1;
+  candidates: CandidateRecord[];
+  evidenceDocuments: EvidenceDocument[];
+  verifiedClaims: VerifiedClaim[];
+  recruiterViews: RecruiterView[];
+  disclosureGrants: DisclosureGrant[];
+  auditEvents: AuditEvent[];
 }

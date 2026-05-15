@@ -1,13 +1,20 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Card, Metric, Pill } from "@/components/cards";
-import { auditEvents, candidateVaults } from "@/lib/fixtures";
-import { searchRecruiterViews } from "@/lib/matching";
+import { searchRecruiterViews } from "@/lib/product-service";
+import { getLocalVeilStore } from "@/lib/store";
 
 const coreQuery = "Find backend engineers with startup experience and compensation under INR 50L";
-const results = searchRecruiterViews(candidateVaults, coreQuery);
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const store = getLocalVeilStore();
+  const [snapshot, results] = await Promise.all([
+    store.read(),
+    searchRecruiterViews(store, coreQuery),
+  ]);
+
   return (
     <AppShell>
       <section className="grid items-end gap-10 pb-10 pt-16 lg:grid-cols-[1.05fr_0.95fr]">
@@ -55,9 +62,9 @@ export default function Home() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-4">
-        <Metric label="Evidence docs" value={candidateVaults.flatMap((vault) => vault.evidenceDocuments).length} />
-        <Metric label="Verified claims" value={candidateVaults.flatMap((vault) => vault.verifiedClaims).length} />
-        <Metric label="Audit receipts" value={auditEvents.length} />
+        <Metric label="Evidence docs" value={snapshot.evidenceDocuments.length} />
+        <Metric label="Verified claims" value={snapshot.verifiedClaims.length} />
+        <Metric label="Audit receipts" value={snapshot.auditEvents.length} />
         <Metric label="Raw docs to recruiters" value="0" />
       </section>
 

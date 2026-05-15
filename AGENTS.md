@@ -33,3 +33,13 @@ Project-owned runtime code, scripts, and tests should be TypeScript. JavaScript 
 ### Privacy boundary
 
 Midnight-backed Private Verification starts in `src/privacy/midnight-private-verification.ts`. Keep app/API slices behind that boundary: raw Evidence Documents stay inside the Trusted Extraction Boundary; recruiter-facing flows consume Verified Claim commitments, candidate-approved Recruiter Views, Disclosure Grants, and receipts.
+
+### Productized MVP path
+
+Do not regress the product back to static demo fixtures. Candidate upload, AI extraction, Recruiter View approval, recruiter search, Disclosure Grant decisions, and audit inspection should flow through app-owned TypeScript storage and server actions. Local JSON storage and the explicit actor selector are development adapters only; production auth should map managed identities and org roles into the same candidate/recruiter actor boundary before calling product services.
+
+### Durable productization
+
+Static fixtures are acceptable only as seed data. Product paths must flow through app-owned TypeScript storage and server-side service functions, even when the local adapter is file-backed for development. Keep the store interface ready for a later DB adapter and avoid module-level mutable request state.
+
+When external auth secrets are absent, use the explicit local actor selector in `src/lib/actors.ts` and validate every server action against candidate or recruiter scope. Future Clerk/Auth integration should replace actor selection at the boundary, not weaken candidate/recruiter data separation.

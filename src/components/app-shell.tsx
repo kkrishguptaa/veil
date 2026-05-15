@@ -44,7 +44,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             href="/recruiter-search"
             className="rounded-full bg-[var(--primary)] px-4 py-2 text-white transition hover:bg-[var(--primary-press)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
-            Run Demo
+            Run Product Flow
           </Link>
         </nav>
         <div id="page-content">{children}</div>

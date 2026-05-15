@@ -6,3 +6,5 @@ dist/
 .DS_Store
 *.tsbuildinfo
 .env*.local
+.veil-data/
+.veil-data/
