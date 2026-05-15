@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:clean": "rm -rf .next && next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run verify:demo && npm run typecheck && npm test && npm run prove:midnight && npm run build",
+    "verify": "npm run verify:demo && npm run typecheck && npm test && npm run prove:midnight && npm run build:clean",
     "verify:demo": "node scripts/verify-demo.mjs",
     "prove:midnight": "node scripts/prove-midnight-private-verification.mjs",
     "test": "vitest run && node --test test/midnight-private-verification.test.mjs",
