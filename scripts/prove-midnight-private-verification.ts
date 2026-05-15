@@ -1,7 +1,7 @@
 import {
   containsPrivateEvidence,
   createLocalMidnightPrivacyBoundary,
-} from "../src/privacy/midnight-private-verification.mjs";
+} from "../src/privacy/midnight-private-verification";
 
 const boundary = createLocalMidnightPrivacyBoundary({
   now: () => "2026-05-16T00:00:00.000Z",

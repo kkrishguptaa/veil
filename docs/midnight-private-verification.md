@@ -6,7 +6,7 @@ Issue #2 chooses the Hackathon MVP privacy path: **Midnight-backed claim commitm
 
 Veil treats raw Evidence Documents as private inputs inside the Trusted Extraction Boundary. Recruiter-facing systems only receive Candidate Intelligence and Verified Claims.
 
-The small boundary exposed to later slices is `src/privacy/midnight-private-verification.mjs`. It supports:
+The small boundary exposed to later slices is `src/privacy/midnight-private-verification.ts`. It supports:
 
 - Evidence Document hashing without returning raw document bodies.
 - Verified Claim commitments over private claim payloads.
@@ -53,7 +53,7 @@ Replace the local adapter in this order:
 Run:
 
 ```sh
-node scripts/prove-midnight-private-verification.mjs
+npm run prove:midnight
 ```
 
 Expected proof:
@@ -66,7 +66,7 @@ Expected proof:
 Run:
 
 ```sh
-node --test test/midnight-private-verification.test.mjs
+npm run test:privacy
 ```
 
 Covered behavior:

@@ -77,6 +77,12 @@ const candidate4PXDocuments: EvidenceDocument[] = [
   },
 ];
 
+const allEvidenceDocuments = [
+  ...candidate7KQDocuments,
+  ...candidate2VMDocuments,
+  ...candidate4PXDocuments,
+];
+
 export const candidateVaults: CandidateVault[] = [
   {
     candidateId: "candidate-7kq",
@@ -169,6 +175,17 @@ export const disclosureGrants: DisclosureGrant[] = [
     decidedAt: "2026-05-16T09:35:00.000Z",
     midnightReceipt: "midnight:grant-approved:7kq-tenure:f91d33",
   },
+  {
+    id: "grant-7kq-performance-contoso",
+    candidateId: "candidate-7kq",
+    recruiterId: "recruiter-contoso",
+    recruiterName: "Contoso Talent",
+    claimId: "claim-7kq-performance",
+    state: "denied",
+    requestedAt: "2026-05-16T09:40:00.000Z",
+    decidedAt: "2026-05-16T09:44:00.000Z",
+    midnightReceipt: "midnight:grant-denied:7kq-performance:8189ac",
+  },
 ];
 
 export const auditEvents: AuditEvent[] = [
@@ -179,6 +196,7 @@ export const auditEvents: AuditEvent[] = [
   event("audit-search-7kq", "candidate-7kq", "recruiter", "recruiter-search.visible", "recruiter-northstar", "midnight:search-visible:7kq:0bb8f3"),
   event("audit-request-7kq", "candidate-7kq", "recruiter", "disclosure.requested", "claim-7kq-leadership", "midnight:grant-request:7kq-leadership:aa1891"),
   event("audit-approve-7kq", "candidate-7kq", "candidate", "disclosure.approved", "claim-7kq-tenure", "midnight:grant-approved:7kq-tenure:f91d33"),
+  event("audit-deny-7kq", "candidate-7kq", "candidate", "disclosure.denied", "claim-7kq-performance", "midnight:grant-denied:7kq-performance:8189ac"),
   event("audit-upgrade-7kq", "candidate-7kq", "veil", "claim.upgraded", "claim-7kq-tenure", "midnight:claim-upgrade:7kq-tenure:41de20"),
 ];
 
@@ -203,6 +221,22 @@ function claim(
     privacyLevel,
     confidence,
     evidenceIds,
+    provenance: evidenceIds.map((evidenceId) => {
+      const document = allEvidenceDocuments.find((candidateDocument) => candidateDocument.id === evidenceId);
+
+      return {
+        evidenceId,
+        documentKind: document?.kind ?? "other",
+        support: "direct",
+      };
+    }),
+    privacyPolicy: {
+      defaultVisibility: privacyLevel === "coarse" ? "recruiter-view" : "gated",
+      preciseClaimRequiresDisclosureGrant: true,
+      rawEvidenceVisibleToRecruiter: false,
+    },
+    extractionNotes: `${label} fixture extracted from private evidence for demo narrative.`,
+    source: "fixture",
     midnightCommitment: `midnight:claim:${id}`,
   };
 }

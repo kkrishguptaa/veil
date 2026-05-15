@@ -18,6 +18,10 @@ For current product language, read `CONTEXT.md` first. Veil's Hackathon MVP is p
 
 Use `DESIGN.md` for UI work. Preserve the gradient mesh, indigo CTA hierarchy, thin display type, pill buttons, cards, and tabular numeric treatment unless a task explicitly changes the design system.
 
+### TypeScript runtime
+
+Project-owned runtime code, scripts, and tests should be TypeScript. JavaScript config files are acceptable only when a tool does not support TypeScript config.
+
 ### Privacy boundary
 
-Midnight-backed Private Verification starts in `src/privacy/midnight-private-verification.mjs`. Keep app/API slices behind that boundary: raw Evidence Documents stay inside the Trusted Extraction Boundary; recruiter-facing flows consume Verified Claim commitments, candidate-approved Recruiter Views, Disclosure Grants, and receipts.
+Midnight-backed Private Verification starts in `src/privacy/midnight-private-verification.ts`. Keep app/API slices behind that boundary: raw Evidence Documents stay inside the Trusted Extraction Boundary; recruiter-facing flows consume Verified Claim commitments, candidate-approved Recruiter Views, Disclosure Grants, and receipts.

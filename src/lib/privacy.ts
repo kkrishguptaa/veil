@@ -31,7 +31,6 @@ export function recruiterEvidenceBoundary(vault: CandidateVault) {
     title: document.title,
     kind: document.kind,
     rawTextVisible: false,
-    privateSummary: document.privateSummary,
     midnightCommitment: document.midnightCommitment,
   }));
 }
