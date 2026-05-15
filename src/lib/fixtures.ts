@@ -5,6 +5,7 @@ import type {
   EvidenceDocument,
   VerifiedClaim,
 } from "./domain";
+import { buildFixtureDisclosureGrants, materializeMidnightForVault } from "./midnight-seed-materialize";
 
 const now = "2026-05-16T09:20:00.000Z";
 
@@ -83,7 +84,7 @@ const allEvidenceDocuments = [
   ...candidate4PXDocuments,
 ];
 
-export const candidateVaults: CandidateVault[] = [
+const candidateVaultsBase: CandidateVault[] = [
   {
     candidateId: "candidate-7kq",
     legalName: "Priya Raman",
@@ -153,40 +154,17 @@ export const candidateVaults: CandidateVault[] = [
   },
 ];
 
-export const disclosureGrants: DisclosureGrant[] = [
-  {
-    id: "grant-7kq-leadership-northstar",
-    candidateId: "candidate-7kq",
-    recruiterId: "recruiter-northstar",
-    recruiterName: "Northstar Robotics",
-    claimId: "claim-7kq-leadership",
-    state: "requested",
-    requestedAt: now,
-    midnightReceipt: "midnight:grant-request:7kq-leadership:aa1891",
-  },
-  {
-    id: "grant-7kq-tenure-northstar",
-    candidateId: "candidate-7kq",
-    recruiterId: "recruiter-northstar",
-    recruiterName: "Northstar Robotics",
-    claimId: "claim-7kq-tenure",
-    state: "approved",
-    requestedAt: "2026-05-16T09:30:00.000Z",
-    decidedAt: "2026-05-16T09:35:00.000Z",
-    midnightReceipt: "midnight:grant-approved:7kq-tenure:f91d33",
-  },
-  {
-    id: "grant-7kq-performance-contoso",
-    candidateId: "candidate-7kq",
-    recruiterId: "recruiter-contoso",
-    recruiterName: "Contoso Talent",
-    claimId: "claim-7kq-performance",
-    state: "denied",
-    requestedAt: "2026-05-16T09:40:00.000Z",
-    decidedAt: "2026-05-16T09:44:00.000Z",
-    midnightReceipt: "midnight:grant-denied:7kq-performance:8189ac",
-  },
-];
+export const candidateVaults = candidateVaultsBase.map(materializeMidnightForVault);
+
+export const disclosureGrants: DisclosureGrant[] = buildFixtureDisclosureGrants(candidateVaults);
+
+function disclosureGrantReceipt(grantId: string) {
+  const grant = disclosureGrants.find((candidate) => candidate.id === grantId);
+  if (!grant) {
+    throw new Error(`missing disclosure grant fixture: ${grantId}`);
+  }
+  return grant.midnightReceipt;
+}
 
 export const auditEvents: AuditEvent[] = [
   event("audit-upload-7kq", "candidate-7kq", "candidate", "evidence.uploaded", "doc-7kq-offer-2024", "midnight:commitment:7kq-offer:c8e41f"),
@@ -194,10 +172,10 @@ export const auditEvents: AuditEvent[] = [
   event("audit-claim-7kq", "candidate-7kq", "veil", "claim.created", "claim-7kq-comp", "midnight:claim:7kq-comp:db7259"),
   event("audit-view-7kq", "candidate-7kq", "candidate", "recruiter-view.approved", "candidate-7kq", "midnight:view:7kq:907ac0"),
   event("audit-search-7kq", "candidate-7kq", "recruiter", "recruiter-search.visible", "recruiter-northstar", "midnight:search-visible:7kq:0bb8f3"),
-  event("audit-request-7kq", "candidate-7kq", "recruiter", "disclosure.requested", "claim-7kq-leadership", "midnight:grant-request:7kq-leadership:aa1891"),
-  event("audit-approve-7kq", "candidate-7kq", "candidate", "disclosure.approved", "claim-7kq-tenure", "midnight:grant-approved:7kq-tenure:f91d33"),
-  event("audit-deny-7kq", "candidate-7kq", "candidate", "disclosure.denied", "claim-7kq-performance", "midnight:grant-denied:7kq-performance:8189ac"),
-  event("audit-upgrade-7kq", "candidate-7kq", "veil", "claim.upgraded", "claim-7kq-tenure", "midnight:claim-upgrade:7kq-tenure:41de20"),
+  event("audit-request-7kq", "candidate-7kq", "recruiter", "disclosure.requested", "claim-7kq-leadership", disclosureGrantReceipt("grant-7kq-leadership-northstar")),
+  event("audit-approve-7kq", "candidate-7kq", "candidate", "disclosure.approved", "claim-7kq-tenure", disclosureGrantReceipt("grant-7kq-tenure-northstar")),
+  event("audit-deny-7kq", "candidate-7kq", "candidate", "disclosure.denied", "claim-7kq-performance", disclosureGrantReceipt("grant-7kq-performance-contoso")),
+  event("audit-upgrade-7kq", "candidate-7kq", "veil", "claim.upgraded", "claim-7kq-tenure", disclosureGrantReceipt("grant-7kq-tenure-northstar")),
 ];
 
 function claim(

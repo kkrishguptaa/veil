@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { randomUUID, createHash } from "node:crypto";
 import type { ActorContext } from "./actors";
 import { requireCandidateScope } from "./actors";
 import type {
@@ -15,12 +15,20 @@ import { classifyEvidenceDocument, runAiIntelligencePipeline } from "./pipeline"
 import { searchApprovedRecruiterViews } from "./matching";
 import { buildAnonymousRecruiterView, getRecruiterVisibleClaim } from "./privacy";
 import {
+  createLocalMidnightPrivacyBoundary,
+  verifyDisclosureReceipt,
+} from "../privacy/midnight-private-verification";
+import {
+  evidenceDocumentToMidnightWitness,
+  fingerprintDisclosureGrantRequest,
+  materializeVerifiedClaimMidnight,
+} from "./midnight-helpers";
+import {
   assembleCandidateVault,
   assembleCandidateVaults,
   replaceRecruiterView,
   type VeilStore,
 } from "./store";
-import { createEvidenceDocument as createPrivateEvidenceCommitment } from "../privacy/midnight-private-verification";
 
 export interface UploadEvidenceInput {
   actor: ActorContext;
@@ -45,14 +53,7 @@ export async function uploadEvidenceAndExtractClaims(
   const anonymousHandle = requireText(input.anonymousHandle, "anonymousHandle");
   const documentId = `doc-${input.candidateId}-${shortId()}`;
   const classifiedKind = classifyEvidenceDocument({ kind: input.kind, rawText });
-  const privateCommitment = createPrivateEvidenceCommitment({
-    documentId,
-    candidateId: input.candidateId,
-    kind: classifiedKind,
-    body: rawText,
-    metadata: { title, uploadedAt: now },
-  });
-  const evidenceDocument: EvidenceDocument = {
+  const evidenceStub: EvidenceDocument = {
     id: documentId,
     candidateId: input.candidateId,
     title,
@@ -60,7 +61,12 @@ export async function uploadEvidenceAndExtractClaims(
     uploadedAt: now,
     rawText,
     privateSummary: summarizePrivateEvidence(rawText),
-    midnightCommitment: `midnight:evidence:${privateCommitment.bodyHash.slice(0, 16)}`,
+    midnightCommitment: "",
+  };
+  const privateWitness = evidenceDocumentToMidnightWitness(evidenceStub);
+  const evidenceDocument: EvidenceDocument = {
+    ...evidenceStub,
+    midnightCommitment: `veil:evidence:${privateWitness.bodyHash}`,
   };
 
   return store.update((state) => {
@@ -72,17 +78,38 @@ export async function uploadEvidenceAndExtractClaims(
       createdAt: now,
     });
     const pipelineRun = runAiIntelligencePipeline(input.candidateId, [evidenceDocument]);
-    const extractedClaims = pipelineRun.claims.map((claim) => ({
-      ...claim,
-      id: `claim-${documentId}-${claim.kind}`,
-      evidenceIds: [documentId],
-      provenance: claim.provenance.map((provenance) => ({
-        ...provenance,
-        evidenceId: documentId,
-        documentKind: classifiedKind,
-      })),
-      midnightCommitment: `midnight:claim:${documentId}:${claim.kind}`,
-    }));
+    const extractedClaims = pipelineRun.claims.map((claim) => {
+      const claimId = `claim-${documentId}-${claim.kind}`;
+      const salt = createHash("sha256").update(`upload-salt:${claimId}`).digest("hex");
+      const midnightBundle = materializeVerifiedClaimMidnight(
+        {
+          id: claimId,
+          candidateId: input.candidateId,
+          kind: claim.kind,
+          coarseValue: claim.coarseValue,
+          preciseValue: claim.preciseValue,
+          confidence: claim.confidence,
+          extractionNotes: claim.extractionNotes,
+          evidenceIds: [documentId],
+        },
+        [privateWitness],
+        salt,
+      );
+
+      return {
+        ...claim,
+        id: claimId,
+        evidenceIds: [documentId],
+        provenance: claim.provenance.map((provenance) => ({
+          ...provenance,
+          evidenceId: documentId,
+          documentKind: classifiedKind,
+        })),
+        midnightCommitment: midnightBundle.publicClaim.commitment,
+        midnightPrivateClaim: midnightBundle.privateClaim,
+        midnightPublicClaim: midnightBundle.publicClaim,
+      };
+    });
     const existingClaims = state.verifiedClaims.filter(
       (claim) =>
         claim.candidateId !== input.candidateId ||
@@ -130,13 +157,41 @@ export async function approveAnonymousRecruiterView(store: VeilStore, input: {
         candidateRecord.candidateId === input.candidateId ? updatedCandidate : candidateRecord,
       ),
     };
-    const view = buildAnonymousRecruiterView(assembleCandidateVault(updatedCandidate, nextState));
+    const vault = assembleCandidateVault(updatedCandidate, nextState);
+    const boundary = createLocalMidnightPrivacyBoundary({ now: () => now });
+    const publicClaims = vault.verifiedClaims
+      .map((claim) => claim.midnightPublicClaim)
+      .filter((claim): claim is NonNullable<typeof claim> => Boolean(claim));
+    if (publicClaims.length === 0) {
+      throw new Error("claims must be materialized through the Midnight boundary before approving a recruiter view");
+    }
+
+    const viewId = `view-${input.candidateId}-${shortId()}`;
+    const approval = boundary.approveRecruiterView({
+      viewId,
+      candidateId: input.candidateId,
+      publicClaims,
+      candidateApprovedBy: input.actor.id,
+    });
+    const recruiterView: RecruiterView = {
+      ...buildAnonymousRecruiterView(vault),
+      recruiterViewId: approval.viewId,
+      midnightRecruiterViewCommitment: approval.midnight.recruiterViewCommitment,
+      visibleReceipts: [...approval.claimCommitments],
+    };
 
     return {
-      ...replaceRecruiterView(nextState, view),
+      ...replaceRecruiterView(nextState, recruiterView),
       auditEvents: [
         ...state.auditEvents,
-        auditEvent(input.candidateId, "candidate", "recruiter-view.approved", input.candidateId, view.visibleReceipts[0] ?? `midnight:view:${input.candidateId}`, now),
+        auditEvent(
+          input.candidateId,
+          "candidate",
+          "recruiter-view.approved",
+          input.candidateId,
+          approval.midnight.recruiterViewCommitment,
+          now,
+        ),
       ],
     };
   });
@@ -206,29 +261,42 @@ export async function requestPreciseClaimGrant(store: VeilStore, input: {
     if (!claim || claim.candidateId !== input.candidateId || !view?.approvedForDiscovery) {
       throw new Error("claim is not requestable from approved recruiter view");
     }
+    if (!view.recruiterViewId) {
+      throw new Error("recruiter view must be Midnight-sealed before disclosure grants");
+    }
     if (claim.privacyLevel !== "precise") {
       throw new Error("only precise claims require disclosure grants");
     }
 
     const existing = state.disclosureGrants.find(
-      (grant) =>
-        grant.claimId === input.claimId &&
-        grant.recruiterId === input.actor.id &&
-        grant.state === "requested",
+      (candidateGrant) =>
+        candidateGrant.claimId === input.claimId &&
+        candidateGrant.recruiterId === input.actor.id &&
+        candidateGrant.state === "requested",
     );
     if (existing) {
       return state;
     }
 
+    const grantId = `grant-${input.claimId}-${input.actor.id}-${shortId()}`;
+    const fingerprint = fingerprintDisclosureGrantRequest({
+      grantId,
+      recruiterId: input.actor.id,
+      recruiterViewId: view.recruiterViewId,
+      claimId: input.claimId,
+      requestedFields: ["preciseValue"],
+      reason: input.reason,
+    });
+
     const grant: DisclosureGrant = {
-      id: `grant-${input.claimId}-${input.actor.id}-${shortId()}`,
+      id: grantId,
       candidateId: input.candidateId,
       recruiterId: input.actor.id,
       recruiterName: input.actor.label,
       claimId: input.claimId,
       state: "requested",
       requestedAt: now,
-      midnightReceipt: `midnight:grant-request:${input.claimId}:${input.actor.id}:${shortId()}`,
+      midnightReceipt: `midnight:grant-request:${fingerprint.slice(0, 24)}`,
     };
 
     return {
@@ -257,7 +325,48 @@ export async function decidePreciseClaimGrant(store: VeilStore, input: {
     }
     requireCandidateScope(input.actor, grant.candidateId);
 
-    const receipt = `midnight:grant-${input.decision}:${grant.claimId}:${grant.recruiterId}:${shortId()}`;
+    const claim = state.verifiedClaims.find((candidateClaim) => candidateClaim.id === grant.claimId);
+    const recruiterView = state.recruiterViews.find((view) => view.candidateId === grant.candidateId);
+    const boundary = createLocalMidnightPrivacyBoundary({ now: () => now });
+
+    let receipt: string;
+    if (input.decision === "approved") {
+      if (!claim?.midnightPrivateClaim || !claim.midnightPublicClaim) {
+        throw new Error("claim is missing Midnight artifacts required for disclosure approval");
+      }
+      if (!recruiterView?.recruiterViewId) {
+        throw new Error("recruiter view seal missing for disclosure approval");
+      }
+
+      const grantRequest = boundary.requestDisclosureGrant({
+        grantId: grant.id,
+        recruiterId: grant.recruiterId,
+        recruiterViewId: recruiterView.recruiterViewId,
+        claimId: grant.claimId,
+        requestedFields: ["preciseValue"],
+      });
+      const disclosureReceipt = boundary.approveDisclosureGrant({
+        grantRequest,
+        privateClaim: claim.midnightPrivateClaim,
+        publicClaim: claim.midnightPublicClaim,
+        candidateApprovedBy: input.actor.id,
+      });
+
+      if (
+        !verifyDisclosureReceipt({
+          receipt: disclosureReceipt,
+          privateClaim: claim.midnightPrivateClaim,
+          publicClaim: claim.midnightPublicClaim,
+        })
+      ) {
+        throw new Error("Midnight disclosure receipt verification failed");
+      }
+
+      receipt = disclosureReceipt.midnight.receiptCommitment;
+    } else {
+      receipt = `midnight:grant-denied:${grant.claimId}:${grant.recruiterId}:${shortId()}`;
+    }
+
     const disclosureGrants = state.disclosureGrants.map((candidateGrant) =>
       candidateGrant.id === grant.id
         ? {
@@ -273,9 +382,7 @@ export async function decidePreciseClaimGrant(store: VeilStore, input: {
     ];
 
     if (input.decision === "approved") {
-      events.push(
-        auditEvent(grant.candidateId, "veil", "claim.upgraded", grant.claimId, receipt, now),
-      );
+      events.push(auditEvent(grant.candidateId, "veil", "claim.upgraded", grant.claimId, receipt, now));
     }
 
     return {

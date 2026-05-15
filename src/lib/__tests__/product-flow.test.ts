@@ -104,7 +104,7 @@ describe("productized Veil flow", () => {
     const actions = finalState.auditEvents.map((event) => event.action);
 
     expect(approved?.state).toBe("approved");
-    expect(approved?.midnightReceipt).toContain("midnight:grant-approved");
+    expect(approved?.midnightReceipt).toMatch(/^[a-f0-9]{64}$/);
     expect(JSON.stringify({ approved, auditEvents: finalState.auditEvents })).not.toContain(privateEvidence);
     expect(actions).toEqual(
       expect.arrayContaining([

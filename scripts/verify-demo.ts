@@ -23,6 +23,7 @@ const readProjectFile = (path: string) =>
 
 const [
   fixtureSource,
+  seedMaterializeSource,
   globalsCss,
   shellSource,
   homePage,
@@ -34,6 +35,7 @@ const [
   serviceSource,
 ] = await Promise.all([
   readProjectFile("src/lib/fixtures.ts"),
+  readProjectFile("src/lib/midnight-seed-materialize.ts"),
   readProjectFile("src/app/globals.css"),
   readProjectFile("src/components/app-shell.tsx"),
   readProjectFile("src/app/page.tsx"),
@@ -53,8 +55,10 @@ const assert = (condition: boolean, message: string) => {
   }
 };
 
+const fixtureBundle = `${fixtureSource}\n${seedMaterializeSource}`;
+
 for (const claimId of requiredClaims) {
-  assert(fixtureSource.includes(claimId), `Missing fixture claim: ${claimId}`);
+  assert(fixtureBundle.includes(claimId), `Missing fixture claim: ${claimId}`);
 }
 
 for (const step of requiredFlow) {
@@ -66,10 +70,10 @@ const evidenceCount = (fixtureSource.match(/rawText:/g) ?? []).length;
 
 assert(candidateCount >= 3, "Expected candidate fixtures");
 assert(evidenceCount >= 3, "Expected private raw Evidence Document fixtures");
-assert(fixtureSource.includes('state: "requested"'), "Missing requested Disclosure Grant state");
-assert(fixtureSource.includes('state: "approved"'), "Missing approved Disclosure Grant state");
-assert(fixtureSource.includes('state: "denied"'), "Missing denied Disclosure Grant state");
-assert(fixtureSource.includes("midnight:"), "Missing Midnight receipts");
+assert(fixtureBundle.includes('state: "requested"'), "Missing requested Disclosure Grant state");
+assert(fixtureBundle.includes('state: "approved"'), "Missing approved Disclosure Grant state");
+assert(fixtureBundle.includes('state: "denied"'), "Missing denied Disclosure Grant state");
+assert(fixtureBundle.includes("midnight:"), "Missing Midnight receipts");
 assert(candidatePage.includes("raw visible: {String(document.rawTextVisible)}"), "Candidate page must show raw-doc boundary state");
 assert(candidatePage.includes("uploadEvidenceAction"), "Candidate vault must use server-action upload path");
 assert(candidatePage.includes("Private evidence text"), "Candidate vault must expose text evidence input");
