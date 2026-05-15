@@ -1,8 +1,9 @@
 # Veil
 
-Hackathon MVP scaffold for privacy-first recruiting: candidates keep Evidence
-Documents private while recruiters evaluate Midnight-backed Verified Claims and
-candidate-approved Anonymous Recruiter Views.
+Privacy-first recruiting: candidates keep Evidence Documents private while
+recruiters evaluate Midnight-backed Verified Claims and candidate-approved
+Anonymous Recruiter Views. Product language lives in `CONTEXT.md` and
+`PRODUCT.md`; visual system in `DESIGN.md`.
 
 ## App
 

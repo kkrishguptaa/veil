@@ -11,7 +11,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Veil | Private Verification",
   description:
-    "Hackathon MVP scaffold for Midnight-backed Private Verification and AI candidate intelligence.",
+    "Privacy-first recruiting: Midnight-backed Verified Claims, Anonymous Recruiter Views, and claim-only Disclosure Grants. Raw evidence stays in the trusted extraction boundary.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

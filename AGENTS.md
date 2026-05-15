@@ -18,6 +18,14 @@ For current product language, read `CONTEXT.md` first. Veil's Hackathon MVP is p
 
 Use `DESIGN.md` for UI work. Preserve the gradient mesh, indigo CTA hierarchy, thin display type, pill buttons, cards, and tabular numeric treatment unless a task explicitly changes the design system.
 
+### Product context for UI
+
+Keep root `PRODUCT.md` aligned with `CONTEXT.md` (purpose, users, principles). Impeccable-style UI work should treat it as the product register; refresh it when domain language shifts, not from ad-hoc prompts alone.
+
+### Ship checklist
+
+Run `npm run verify` before merging UI or privacy changes. Recruiter routes must never render `legalName`, raw `EvidenceDocument.rawText`, or other vault-only fields except on candidate-scoped surfaces.
+
 ### TypeScript runtime
 
 Project-owned runtime code, scripts, and tests should be TypeScript. JavaScript config files are acceptable only when a tool does not support TypeScript config.

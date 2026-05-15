@@ -65,9 +65,9 @@ export default function RecruiterSearchPage() {
                 </div>
                 <div className="mt-4 rounded-lg border border-[var(--hairline)] p-4">
                   <div className="text-sm text-[var(--ink-mute)]">Match explanation</div>
-                  <ul className="mt-3 grid gap-2 text-sm">
+                  <ul className="mt-3 grid list-none gap-2 pl-0 text-sm">
                     {result.explanation.map((item) => (
-                      <li key={item}>- {item}</li>
+                      <li key={item}>{item}</li>
                     ))}
                   </ul>
                 </div>
