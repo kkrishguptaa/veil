@@ -85,6 +85,16 @@ _Avoid_: Full recruiting platform, long-term talent graph
 > **Dev:** "Should we spend more time improving ranking quality or making disclosure boundaries obvious?"
 > **Domain expert:** "Make disclosure boundaries obvious first; matching only needs to be strong enough to prove private verification matters."
 
+## Implementation map (for agents)
+
+These are pointers for navigating the codebase, not new glossary terms.
+
+- **Product flows:** server actions and services under `src/` (candidate vault, recruiter search, disclosure, audit). Flows must hit app-owned persistence, not static page-only fixtures.
+- **Persistence:** local JSON store (e.g. `.veil-data/` in dev) behind a replaceable adapter; production expects DB/blob storage while keeping the same domain boundaries.
+- **Actor boundary:** `src/lib/actors.ts` (or equivalent) gates candidate vs recruiter until Clerk or another managed auth maps real identities and roles.
+- **Midnight path:** `src/privacy/midnight-private-verification.ts` implements the local commitment/receipt story; on-chain or hosted Midnight integration remains roadmap.
+- **Session handoff:** root **`HANDOFF.md`** logs multi-iteration review notes, Turbopack/NFT risks on file-backed imports, and next-focus items.
+
 ## Flagged Ambiguities
 
 - "AI-native recruiting platform" can imply generic recruiter matching; resolved: Veil is privacy-first, and recruiter matching is a narrative vehicle for private verification in the first PRD.

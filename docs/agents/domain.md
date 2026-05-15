@@ -8,8 +8,10 @@ This is a multi-context repo. `CONTEXT-MAP.md` at the repo root points to one `C
 
 ## Before exploring, read these
 
+- **`PRODUCT.md`** at the repo root if it exists. Product purpose, users, principles, and anti-references for Veil; use before inventing UX or scope language.
 - **`CONTEXT-MAP.md`** at the repo root if it exists. Read the context entries relevant to the topic.
-- **Per-context `CONTEXT.md` files** listed in `CONTEXT-MAP.md`.
+- **Per-context `CONTEXT.md` files** listed in `CONTEXT-MAP.md` (or root `CONTEXT.md` when no map exists).
+- **`HANDOFF.md`** at the repo root if it exists. Long-run review notes, known risks, and next-focus items from prior sessions.
 - **`docs/adr/`** for system-wide decisions.
 - **`src/<context>/docs/adr/`** for context-scoped decisions.
 

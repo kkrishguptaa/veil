@@ -12,7 +12,7 @@ Private Verification is the primary promise. Recruiter Matching is the product p
 
 ## Source Basis
 
-This product context is derived from GitHub issues #1 through #9, `CONTEXT.md`, `DESIGN.md`, and the current app routes for the candidate vault, recruiter search, disclosure grant, privacy audit, fixtures, matching, pipeline, and Midnight private verification boundary.
+This product context is derived from GitHub issues #1 through #9, `CONTEXT.md`, `DESIGN.md`, `HANDOFF.md` (operational notes from review loops), and the current app routes for the candidate vault, recruiter search, disclosure grant, privacy audit, fixtures, matching, pipeline, and Midnight private verification boundary.
 
 ## Users
 
@@ -64,3 +64,5 @@ Because this is product UI, design serves the task. Familiar app affordances, cl
 ## Current Product State
 
 The current app contains product routes for candidate vault, recruiter search, disclosure grant, and Midnight receipts, plus TypeScript domain, pipeline, matching, privacy, fixture, storage, product-service, actor, and Midnight boundary modules. Product flows use durable local JSON storage and actor-scoped server actions as development adapters. Production should replace local JSON storage with a managed database and the local actor selector with Clerk or another managed auth provider while preserving the same product boundary.
+
+For cross-session engineering notes (verify:live ports, Turbopack warnings, next-focus), see **`HANDOFF.md`** at the repo root.
