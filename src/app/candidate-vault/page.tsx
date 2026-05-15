@@ -1,5 +1,6 @@
 import { AppShell } from "@/components/app-shell";
 import { Card, Metric, Pill } from "@/components/cards";
+import { EvidenceUploadDemo } from "@/components/evidence-upload-demo";
 import { auditEvents, candidateVaults } from "@/lib/fixtures";
 import { buildAnonymousRecruiterView, getCandidateAuditEvents, recruiterEvidenceBoundary } from "@/lib/privacy";
 
@@ -29,7 +30,11 @@ export default function CandidateVaultPage() {
         <Metric label="Recruiter raw access" value="false" />
       </section>
 
-      <section className="grid gap-5 py-8 lg:grid-cols-[0.9fr_1.1fr]">
+      <section className="py-8">
+        <EvidenceUploadDemo />
+      </section>
+
+      <section className="grid gap-5 pb-8 lg:grid-cols-[0.9fr_1.1fr]">
         <Card className="card-shadow">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-light tracking-[-0.3px]">Evidence Documents</h2>
