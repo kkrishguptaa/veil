@@ -141,7 +141,7 @@ function defaultStoreFile() {
 
   return process.env.NODE_ENV === "production"
     ? join("/tmp", "veil-store.json")
-    : join(".veil-data", "store.json");
+    : join(/*turbopackIgnore: true*/ process.cwd(), ".veil-data", "store.json");
 }
 
 async function writeState(filePath: string, state: VeilStoreState) {

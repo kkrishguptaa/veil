@@ -7,4 +7,3 @@ dist/
 *.tsbuildinfo
 .env*.local
 .veil-data/
-.veil-data/
