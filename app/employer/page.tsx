@@ -61,7 +61,7 @@ export default function EmployerPage() {
           type="button"
           className="cursor-not-allowed rounded-lg bg-(--color-edge) px-4 py-2 text-sm font-medium text-(--color-ink-muted)"
           disabled
-          title="Submitting transactions from the browser is not implemented yet."
+          aria-label="Run payroll batch. Disabled: submitting transactions from the browser is not implemented yet."
         >
           Run payroll batch (needs in-app wallet submit)
         </button>
@@ -69,7 +69,7 @@ export default function EmployerPage() {
           type="button"
           className="cursor-not-allowed rounded-lg border border-(--color-edge) px-4 py-2 text-sm text-(--color-ink-muted)"
           disabled
-          title="Proof history UI is not wired yet."
+          aria-label="View proof history. Disabled: this UI is not wired yet."
         >
           View proof history (not wired)
         </button>
