@@ -32,6 +32,20 @@ export async function VeilLedgerStrip() {
             <code className="rounded bg-(--color-canvas) px-1 py-0.5 font-mono">VEIL_CONTRACT_ADDRESS</code> to a hex address.
           </p>
         ) : null}
+        {result.code === "indexer_unreachable" ? (
+          <p className="mt-3 text-xs">
+            Confirm the Midnight indexer in Docker is up on the port from your active network config, then retry. Quick
+            check: <code className="rounded bg-(--color-canvas) px-1 py-0.5 font-mono">docker compose ps</code> and{" "}
+            <code className="rounded bg-(--color-canvas) px-1 py-0.5 font-mono">npm run network</code>.
+          </p>
+        ) : null}
+        {result.code === "not_indexed" ? (
+          <p className="mt-3 text-xs">
+            If you just deployed, wait a moment for the indexer to catch up. If it persists, redeploy with{" "}
+            <code className="rounded bg-(--color-canvas) px-1 py-0.5 font-mono">npm run setup</code> and confirm{" "}
+            <code className="rounded bg-(--color-canvas) px-1 py-0.5 font-mono">npm run test:e2e</code> passes.
+          </p>
+        ) : null}
       </aside>
     );
   }
