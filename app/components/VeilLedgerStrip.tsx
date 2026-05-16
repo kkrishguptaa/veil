@@ -42,7 +42,11 @@ export async function VeilLedgerStrip() {
     result.ledger as Record<string, string | undefined>;
 
   return (
-    <aside className="rounded-xl border border-(--color-edge) bg-(--color-canvas-elevated) p-5 text-sm" aria-live="polite">
+    <aside
+      className="rounded-xl border border-(--color-edge) bg-(--color-canvas-elevated) p-5 text-sm"
+      aria-live="polite"
+      suppressHydrationWarning
+    >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <p className="font-medium text-(--color-ink)">Live Veil ledger (indexer)</p>
         <p className="text-xs text-(--color-ink-muted)">
