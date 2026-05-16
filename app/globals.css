@@ -1,26 +1,24 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* Veil: dark, privacy-forward canvas. Neutrals are blue-tinted, not pure gray. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-canvas: oklch(0.17 0.045 264);
+  --color-canvas-elevated: oklch(0.21 0.05 264);
+  --color-ink: oklch(0.93 0.02 264);
+  --color-ink-muted: oklch(0.72 0.035 264);
+  --color-edge: oklch(0.32 0.04 264);
+  --color-accent: oklch(0.72 0.14 195);
+  --color-accent-hover: oklch(0.78 0.12 195);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
