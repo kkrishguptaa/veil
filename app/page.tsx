@@ -1,4 +1,15 @@
 import Link from "next/link";
+import { Suspense } from "react";
+
+import { VeilLedgerStrip } from "./components/VeilLedgerStrip";
+
+function LedgerFallback() {
+  return (
+    <aside className="rounded-xl border border-dashed border-(--color-edge) bg-(--color-canvas-elevated) p-5 text-sm text-(--color-ink-muted)">
+      Loading on-chain snapshot from the indexer…
+    </aside>
+  );
+}
 
 export default function HomePage() {
   return (
@@ -75,10 +86,14 @@ export default function HomePage() {
           ))}
         </ol>
         <p className="max-w-2xl text-sm leading-relaxed text-(--color-ink-muted)">
-          The live contract path in this repo is still the hello-world scaffold while the payroll Compact work lands.
-          The value today is a honest story plus a green devnet pipeline. If copy ever outruns what ships, we fix the
-          copy first.
+          The repo now ships a first Veil Compact slice (public counters and disclosed strings) plus a Next.js read path
+          against your local indexer. Private payroll balances are still not represented on this page.
         </p>
+        <div className="mt-8 max-w-3xl">
+          <Suspense fallback={<LedgerFallback />}>
+            <VeilLedgerStrip />
+          </Suspense>
+        </div>
       </section>
 
       <section className="mt-24 space-y-6" id="demo">
@@ -87,7 +102,10 @@ export default function HomePage() {
           <li>Run `npm install` then `npm run setup` (Docker required).</li>
           <li>Confirm `npm run test:e2e` exits 0 against your deployed address.</li>
           <li>Walk employer → employee → audit shells in this site and match them to the narrative you plan to say out loud.</li>
-          <li>When payroll circuits ship, swap the checklist step to “run a batch and show selective disclosure.”</li>
+          <li>
+            Hit <code className="rounded bg-(--color-canvas-elevated) px-1 py-0.5 font-mono">GET /api/veil-ledger</code>{" "}
+            or open employer or audit routes to see the same indexer snapshot the UI uses.
+          </li>
         </ul>
       </section>
 

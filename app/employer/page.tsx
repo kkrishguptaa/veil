@@ -1,9 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
+
+import { VeilLedgerStrip } from "../components/VeilLedgerStrip";
 
 export const metadata: Metadata = {
   title: "Employer",
 };
+
+function LedgerFallback() {
+  return (
+    <aside className="rounded-xl border border-dashed border-(--color-edge) bg-(--color-canvas-elevated) p-5 text-sm text-(--color-ink-muted)">
+      Loading on-chain snapshot from the indexer…
+    </aside>
+  );
+}
 
 export default function EmployerPage() {
   return (
@@ -18,9 +29,15 @@ export default function EmployerPage() {
         </p>
         <h1 className="text-3xl font-medium tracking-tight">Employer workspace</h1>
         <p className="text-(--color-ink-muted)">
-          This route is a shell for the hackathon story: org context, employee rows, batch run, proof history. Wire it
-          to real state once the payroll contract slice lands.
+          Org context, employee rows, and batch runs still need wallet-backed transactions in the app. The panel below is
+          a real indexer read of the public Veil ledger fields after you compile, deploy, and run Docker devnet locally.
         </p>
+      </div>
+
+      <div className="mt-10">
+        <Suspense fallback={<LedgerFallback />}>
+          <VeilLedgerStrip />
+        </Suspense>
       </div>
 
       <div className="mt-12 grid gap-6 lg:grid-cols-3">
@@ -32,8 +49,9 @@ export default function EmployerPage() {
         <div className="rounded-xl border border-(--color-edge) bg-(--color-canvas-elevated) p-6 lg:col-span-2">
           <h2 className="text-sm font-medium uppercase tracking-wide text-(--color-ink-muted)">Employees on file</h2>
           <p className="mt-4 text-sm text-(--color-ink-muted)">
-            No rows yet. When the slice ships, this becomes the live list sourced from your chosen storage and contract
-            reads.
+            HR-style rows are still off-chain in this milestone. The contract exposes a placeholder{" "}
+            <span className="font-mono text-(--color-ink)">registerEmployeePlaceholder</span> circuit for when we wire
+            submit from this UI.
           </p>
         </div>
       </div>
@@ -41,17 +59,19 @@ export default function EmployerPage() {
       <div className="mt-10 flex flex-wrap gap-3">
         <button
           type="button"
-          className="rounded-lg bg-(--color-accent) px-4 py-2 text-sm font-medium text-(--color-canvas) opacity-80"
+          className="cursor-not-allowed rounded-lg bg-(--color-edge) px-4 py-2 text-sm font-medium text-(--color-ink-muted)"
           disabled
+          title="Submitting transactions from the browser is not implemented yet."
         >
-          Run payroll batch (soon)
+          Run payroll batch (needs in-app wallet submit)
         </button>
         <button
           type="button"
-          className="rounded-lg border border-(--color-edge) px-4 py-2 text-sm text-(--color-ink-muted)"
+          className="cursor-not-allowed rounded-lg border border-(--color-edge) px-4 py-2 text-sm text-(--color-ink-muted)"
           disabled
+          title="Proof history UI is not wired yet."
         >
-          View proof history (soon)
+          View proof history (not wired)
         </button>
       </div>
     </div>
