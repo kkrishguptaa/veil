@@ -149,8 +149,11 @@ async function main() {
     (_k, v) => (typeof v === 'bigint' ? v.toString() : v),
     2,
   );
+  const ledgerTruncated = ledgerPreview.length > 800;
   console.log(`✅ e2e-check passed`);
-  console.log(`   ledger (truncated): ${ledgerPreview.slice(0, 800)}${ledgerPreview.length > 800 ? '…' : ''}`);
+  console.log(
+    `   ledger${ledgerTruncated ? ' (truncated)' : ''}: ${ledgerPreview.slice(0, 800)}${ledgerTruncated ? '…' : ''}`,
+  );
   console.log(`   contractAddress: ${deployment.address}`);
   console.log(`   network:         ${network}`);
 
