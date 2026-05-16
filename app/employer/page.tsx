@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { VeilLedgerStrip } from "../components/VeilLedgerStrip";
+import { EmployerSubmitPanel } from "./EmployerSubmitPanel";
 
 export const metadata: Metadata = {
   title: "Employer",
@@ -29,8 +30,9 @@ export default function EmployerPage() {
         </p>
         <h1 className="text-3xl font-medium tracking-tight">Employer workspace</h1>
         <p className="text-(--color-ink-muted)">
-          Org context, employee rows, and batch runs still need wallet-backed transactions in the app. The panel below is
-          a real indexer read of the public Veil ledger fields after you compile, deploy, and run Docker devnet locally.
+          Run Veil placeholder payroll circuits from this page using the devnet wallet on the machine where Next.js runs.
+          The ledger panel below stays the honest readout of public fields; nothing here claims private salaries are
+          already on-chain.
         </p>
       </div>
 
@@ -40,40 +42,31 @@ export default function EmployerPage() {
         </Suspense>
       </div>
 
+      <div className="mt-10">
+        <EmployerSubmitPanel />
+      </div>
+
       <div className="mt-12 grid gap-6 lg:grid-cols-3">
         <div className="rounded-xl border border-(--color-edge) bg-(--color-canvas-elevated) p-6">
           <h2 className="text-sm font-medium uppercase tracking-wide text-(--color-ink-muted)">Next payroll</h2>
-          <p className="mt-3 text-2xl font-medium text-(--color-ink)">May 31</p>
-          <p className="mt-2 text-sm text-(--color-ink-muted)">Placeholder date for layout only.</p>
+          <p className="mt-3 text-2xl font-medium text-(--color-ink)">Calendar TBD</p>
+          <p className="mt-2 text-sm text-(--color-ink-muted)">Scheduling UI is not in this slice — counters above are the live signal.</p>
         </div>
         <div className="rounded-xl border border-(--color-edge) bg-(--color-canvas-elevated) p-6 lg:col-span-2">
           <h2 className="text-sm font-medium uppercase tracking-wide text-(--color-ink-muted)">Employees on file</h2>
           <p className="mt-4 text-sm text-(--color-ink-muted)">
-            HR-style rows are still off-chain in this milestone. The contract exposes a placeholder{" "}
-            <span className="font-mono text-(--color-ink)">registerEmployeePlaceholder</span> circuit for when we wire
-            submit from this UI.
+            HR-style rows stay off-chain in this milestone. Each{" "}
+            <span className="font-mono text-(--color-ink)">registerEmployeePlaceholder</span> call only bumps the public{" "}
+            <span className="font-mono text-(--color-ink)">employee_registry_version</span> counter so the story stays
+            aligned with the Compact contract.
           </p>
         </div>
       </div>
 
-      <div className="mt-10 flex flex-wrap gap-3">
-        <button
-          type="button"
-          className="cursor-not-allowed rounded-lg bg-(--color-edge) px-4 py-2 text-sm font-medium text-(--color-ink-muted)"
-          disabled
-          aria-label="Run payroll batch. Disabled: submitting transactions from the browser is not implemented yet."
-        >
-          Run payroll batch (needs in-app wallet submit)
-        </button>
-        <button
-          type="button"
-          className="cursor-not-allowed rounded-lg border border-(--color-edge) px-4 py-2 text-sm text-(--color-ink-muted)"
-          disabled
-          aria-label="View proof history. Disabled: this UI is not wired yet."
-        >
-          View proof history (not wired)
-        </button>
-      </div>
+      <p className="mt-10 text-sm text-(--color-ink-muted)">
+        CLI scripts remain the fallback for CI and headless hosts — see <code className="font-mono">README.md</code> for
+        the full toolchain path.
+      </p>
     </div>
   );
 }

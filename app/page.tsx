@@ -102,6 +102,10 @@ export default function HomePage() {
         <ul className="max-w-2xl list-inside list-disc space-y-2 text-(--color-ink-muted)">
           <li>Run `npm install` then `npm run setup` (Docker required).</li>
           <li>Confirm `npm run test:e2e` exits 0 against your deployed address.</li>
+          <li>
+            On `/employer`, run a placeholder employee registration and batch so public counters move, then compare the
+            employee receipt hash on `/employee` with the same indexer snapshot.
+          </li>
           <li>Walk employer → employee → audit shells in this site and match them to the narrative you plan to say out loud.</li>
           <li>
             Hit <code className="rounded bg-(--color-canvas-elevated) px-1 py-0.5 font-mono">GET /api/veil-ledger</code>{" "}

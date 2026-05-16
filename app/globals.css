@@ -11,6 +11,8 @@
   --color-edge: oklch(0.32 0.04 264);
   --color-accent: oklch(0.72 0.14 195);
   --color-accent-hover: oklch(0.78 0.12 195);
+  --color-success: oklch(0.72 0.11 155);
+  --color-danger: oklch(0.65 0.17 25);
 }
 
 :root {

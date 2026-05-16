@@ -103,6 +103,10 @@ On the first run with `--network preview` (or `preprod`):
 If the faucet is slow or the script times out, your seed is preserved.
 Re-run `npm run setup -- --network preview` once the funds land.
 
+### Employer placeholder transactions (Next.js)
+
+With Docker devnet running and `npm run setup` complete, start `npm run dev` and open `/employer`. The **Register employee (placeholder)** and **Run payroll batch (placeholder)** buttons submit `registerEmployeePlaceholder` / `runBatchPlaceholder` using the same devnet wallet as `npm run deploy` (the server spawns `scripts/employer-placeholder-submit.ts` so LevelDB natives stay out of the Next bundle). They only change public counters and the demo batch hash string — not private salary payloads.
+
 ### Environment overrides
 
 These env vars override the active network's config (no per-network
@@ -118,6 +122,7 @@ suffix — they apply to whichever network is active for the run):
 | `MIDNIGHT_PROOF_SERVER_URL` | Override the proof server URL — set to a public proof server (e.g. `https://lace-proof-pub.preview.midnight.network`) to skip running one locally. |
 | `MIDNIGHT_FAUCET_TIMEOUT_MS` | Faucet poll budget in milliseconds (default 600000 = 10 min). |
 | `VEIL_CONTRACT_ADDRESS` | Optional hex contract address for the Next.js indexer read path when `.midnight-state.json` is missing (for example CI or a remote indexer smoke test). |
+| `VEIL_EMPLOYER_API_TOKEN` | When set, `/api/veil/employer/*` routes require `Authorization: Bearer <token>`. Leave unset on local `undeployed` for convenience; set it (and paste the same token in the Employer page) when pointing the app at preview/preprod. |
 
 By default all networks use the **local** proof server. Public proof
 servers exist (see the env override above) but the local default keeps
@@ -149,12 +154,13 @@ Your preview/preprod wallet seeds and deploy addresses stay in
 
 ```
 veil/
-├── app/                        # Next.js App Router UI + `app/api/veil-ledger` indexer snapshot
+├── app/                        # Next.js App Router UI + API routes (`/api/veil-ledger`, employer placeholder txs)
 ├── contracts/
 │   └── veil.compact            # Veil payroll slice (public ledger fields + placeholder circuits)
 ├── scripts/
 │   ├── setup.ts                # orchestrator for `npm run setup`
 │   ├── deploy.ts               # deploy the contract
+│   ├── employer-placeholder-submit.ts  # CLI bridge for in-app employer txs
 │   ├── e2e-check.ts            # smoke + read-back
 │   ├── network.ts              # network selection + state file management
 │   └── check-balance.ts        # NIGHT / DUST balance
