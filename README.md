@@ -1,6 +1,10 @@
 # veil
 
-A Midnight Network smart contract scaffolded with create-mn-app.
+**Veil** is a confidential payroll demo on [Midnight Network](https://midnight.network). The goal is simple to state and hard to do on a public ledger: pay people on schedule, let each person prove they were paid, and let an auditor trust the batch without turning salaries into a billboard.
+
+This repository is the hackathon scaffold: a working **Compact** contract path (`hello-world` today, payroll logic next), **devnet** scripts, and a **Next.js** front end for the employer, employee, and auditor story.
+
+Domain language lives in `CONTEXT.md`. Positioning notes for marketing-style work live in `.agents/product-marketing-context.md`.
 
 ## Quick start
 
@@ -135,7 +139,6 @@ Your preview/preprod wallet seeds and deploy addresses stay in
 | `npm run setup`         | One-shot: start devnet, compile, deploy.                       |
 | `npm run compile`       | Compile the Compact contract.                                  |
 | `npm run deploy`        | Deploy the compiled contract (requires devnet up + compiled).  |
-| `npm run cli`           | Interactive CLI to call circuits on the deployed contract.     |
 | `npm run check-balance` | Print the genesis-seed wallet's NIGHT and DUST balances.       |
 | `npm run test:e2e`      | Smoke + read-back check against the deployed contract.         |
 | `npm run clean`         | Remove `contracts/managed/` and `.midnight-state.json`.        |
@@ -145,15 +148,14 @@ Your preview/preprod wallet seeds and deploy addresses stay in
 
 ```
 veil/
+├── app/                        # Next.js App Router UI
 ├── contracts/
 │   └── hello-world.compact     # Compact source (tutorial-shaped scaffold)
 ├── scripts/
-│   └── e2e-check.ts            # smoke + read-back
-├── src/
-│   ├── network.ts              # network selection + state file management
 │   ├── setup.ts                # orchestrator for `npm run setup`
 │   ├── deploy.ts               # deploy the contract
-│   ├── cli.ts                  # interact with deployed contract
+│   ├── e2e-check.ts            # smoke + read-back
+│   ├── network.ts              # network selection + state file management
 │   └── check-balance.ts        # NIGHT / DUST balance
 ├── docker-compose.yml          # node + indexer + proof-server
 ├── .midnight-state.json        # written by deploy (gitignored)
