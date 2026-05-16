@@ -29,8 +29,9 @@ export default function EmployeePage() {
         </p>
         <h1 className="text-3xl font-medium tracking-tight">Employee payslip view</h1>
         <p className="text-(--color-ink-muted)">
-          Payslip decryption and per-employee proofs are not in this build. The shared ledger read below is the same
-          public slice an employee could trust for batch counters and status text once their wallet flow exists.
+          Payslip decryption and per-employee proofs are not in this build. You should still see verification state next
+          to anything sensitive once it exists. The shared ledger read below is the same public slice you can trust for
+          batch counters and status text until a wallet flow lands.
         </p>
       </div>
 
@@ -51,8 +52,9 @@ export default function EmployeePage() {
           </span>
         </div>
         <p className="mt-4 text-sm leading-relaxed text-(--color-ink-muted)">
-          Amounts and dates stay out of this demo until we ship encrypted detail. For now, treat the indexer panel above
-          as the honest signal for public batch metadata only.
+          Amounts and dates stay out of this demo until we ship encrypted detail. If decryption is not ready, we say so
+          in copy instead of implying a silent failure. For now, treat the indexer panel above as the honest signal for
+          public batch metadata only.
         </p>
       </div>
     </div>
