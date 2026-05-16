@@ -6,7 +6,7 @@
   "author": "",
   "license": "MIT",
   "scripts": {
-    "compile": "compact compile contracts/veil.compact contracts/managed/veil",
+    "compile": "compact compile contracts/hello-world.compact contracts/managed/hello-world",
     "setup": "npx tsx scripts/setup.ts",
     "deploy": "npx tsx scripts/deploy.ts",
     "check-balance": "npx tsx scripts/check-balance.ts",

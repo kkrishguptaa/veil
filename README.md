@@ -146,7 +146,7 @@ Your preview/preprod wallet seeds and deploy addresses stay in
 ```
 veil/
 ├── contracts/
-│   └── hello-world.compact     # Compact source
+│   └── hello-world.compact     # Compact source (tutorial-shaped scaffold)
 ├── scripts/
 │   └── e2e-check.ts            # smoke + read-back
 ├── src/
