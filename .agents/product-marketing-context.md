@@ -6,7 +6,7 @@
 
 **One-liner:** Veil is confidential payroll infrastructure on Midnight: pay teams without turning salaries into public ledger trivia.
 
-**What it does:** Employers run batches against a Midnight contract path that keeps sensitive compensation out of cleartext chain gossip. Employees still get receipts they can verify. Auditors can follow proofs and aggregates instead of asking HR to email spreadsheets around.
+**What it does:** Employers run batches against a Midnight contract path that keeps sensitive compensation out of cleartext chain gossip. Employees still get receipts they can verify. Auditors can follow proofs and aggregates instead of asking HR to email spreadsheets around. The Next.js employer surface can now submit placeholder Compact calls on local devnet (or with a bearer token on public testnets); employees can export a hash-stable public-anchor receipt; auditors can download JSON/Markdown disclosure stubs that match `CONTEXT.md` language.
 
 **Product category:** On-chain payroll and compliance demos built on programmable privacy.
 

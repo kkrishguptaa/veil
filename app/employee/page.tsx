@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { VeilLedgerStrip } from "../components/VeilLedgerStrip";
+import { EmployeeReceiptPanel } from "./EmployeeReceiptPanel";
 
 export const metadata: Metadata = {
   title: "Employee",
@@ -27,11 +28,10 @@ export default function EmployeePage() {
           <span className="text-(--color-edge)"> / </span>
           Employee
         </p>
-        <h1 className="text-3xl font-medium tracking-tight">Employee payslip view</h1>
+        <h1 className="text-3xl font-medium tracking-tight">Employee view</h1>
         <p className="text-(--color-ink-muted)">
-          Payslip decryption and per-employee proofs are not in this build. You should still see verification state next
-          to anything sensitive once it exists. The shared ledger read below is the same public slice you can trust for
-          batch counters and status text until a wallet flow lands.
+          Compare what Veil exposes on the Midnight indexer today with what still lives on the roadmap (private payslip
+          decryption). If the two ever disagree, trust the indexer panel and a green <code className="font-mono">npm run test:e2e</code>.
         </p>
       </div>
 
@@ -41,22 +41,7 @@ export default function EmployeePage() {
         </Suspense>
       </div>
 
-      <div className="mt-12 max-w-xl rounded-xl border border-(--color-edge) bg-(--color-canvas-elevated) p-6">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-sm font-medium uppercase tracking-wide text-(--color-ink-muted)">Latest period</h2>
-            <p className="mt-2 text-lg font-medium text-(--color-ink)">No payslip loaded</p>
-          </div>
-          <span className="rounded-full border border-(--color-edge) px-3 py-1 text-xs text-(--color-ink-muted)">
-            Verification: stub
-          </span>
-        </div>
-        <p className="mt-4 text-sm leading-relaxed text-(--color-ink-muted)">
-          Amounts and dates stay out of this demo until we ship encrypted detail. If decryption is not ready, we say so
-          in copy instead of implying a silent failure. For now, treat the indexer panel above as the honest signal for
-          public batch metadata only.
-        </p>
-      </div>
+      <EmployeeReceiptPanel />
     </div>
   );
 }
