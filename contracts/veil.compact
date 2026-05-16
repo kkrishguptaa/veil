@@ -1,0 +1,37 @@
+pragma language_version >= 0.23;
+
+// Veil payroll slice (demo): public ledger fields and placeholder circuits.
+// This is not a production payroll engine; it binds org context and batch counters
+// you can read from the indexer while private payout logic is still roadmap work.
+
+export ledger organization_id: Opaque<"string">;
+export ledger employee_registry_version: Uint<64>;
+export ledger batch_count: Uint<64>;
+export ledger last_batch_hash: Opaque<"string">;
+export ledger status_message: Opaque<"string">;
+
+// One-time style setup: employer (or deploy script) discloses org label and boot text.
+export circuit bootstrap(org_label: Opaque<"string">, boot_message: Opaque<"string">): [] {
+  organization_id = disclose(org_label);
+  employee_registry_version = disclose(0);
+  batch_count = disclose(0);
+  last_batch_hash = disclose(default<Opaque<"string">>);
+  status_message = disclose(boot_message);
+}
+
+// Placeholder: increments a public counter when HR adds a row later.
+export circuit registerEmployeePlaceholder(): [] {
+  const next = employee_registry_version + 1;
+  employee_registry_version = disclose(next as Uint<64>);
+}
+
+// Placeholder: increments batch counter and stores a disclosed hash string (demo anchor).
+export circuit runBatchPlaceholder(batch_hash: Opaque<"string">): [] {
+  const next = batch_count + 1;
+  batch_count = disclose(next as Uint<64>);
+  last_batch_hash = disclose(batch_hash);
+}
+
+export circuit setStatusMessage(msg: Opaque<"string">): [] {
+  status_message = disclose(msg);
+}

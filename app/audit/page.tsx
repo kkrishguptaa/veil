@@ -1,9 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
+
+import { VeilLedgerStrip } from "../components/VeilLedgerStrip";
 
 export const metadata: Metadata = {
   title: "Audit",
 };
+
+function LedgerFallback() {
+  return (
+    <aside className="rounded-xl border border-dashed border-(--color-edge) bg-(--color-canvas-elevated) p-5 text-sm text-(--color-ink-muted)">
+      Loading on-chain snapshot from the indexer…
+    </aside>
+  );
+}
 
 export default function AuditPage() {
   return (
@@ -23,11 +34,20 @@ export default function AuditPage() {
         </p>
       </div>
 
+      <div className="mt-10">
+        <Suspense fallback={<LedgerFallback />}>
+          <VeilLedgerStrip />
+        </Suspense>
+      </div>
+
       <div className="mt-12 grid gap-6 md:grid-cols-2">
         <div className="rounded-xl border border-(--color-edge) bg-(--color-canvas-elevated) p-6">
           <h2 className="text-sm font-medium uppercase tracking-wide text-(--color-ink-muted)">Batch proof</h2>
-          <p className="mt-3 font-mono text-sm text-(--color-ink-muted)">0x…pending</p>
-          <p className="mt-3 text-sm text-(--color-ink-muted)">Placeholder hash until a payroll proof is wired.</p>
+          <p className="mt-3 text-sm text-(--color-ink-muted)">
+            The live <span className="font-mono text-(--color-ink)">last_batch_hash</span> placeholder from the contract
+            appears in the indexer panel above when batches run. This card stays for narrative layout until real proof
+            bundles ship.
+          </p>
         </div>
         <div className="rounded-xl border border-(--color-edge) bg-(--color-canvas-elevated) p-6">
           <h2 className="text-sm font-medium uppercase tracking-wide text-(--color-ink-muted)">Disclosure window</h2>

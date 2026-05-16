@@ -2,7 +2,7 @@
 
 **Veil** is a confidential payroll demo on [Midnight Network](https://midnight.network). The goal is simple to state and hard to do on a public ledger: pay people on schedule, let each person prove they were paid, and let an auditor trust the batch without turning salaries into a billboard.
 
-This repository is the hackathon scaffold: a working **Compact** contract path (`hello-world` today, payroll logic next), **devnet** scripts, and a **Next.js** front end for the employer, employee, and auditor story.
+This repository is the hackathon scaffold: a working **Compact** contract path (`veil` payroll slice), **devnet** scripts, and a **Next.js** front end for the employer, employee, and auditor story.
 
 Domain language lives in `CONTEXT.md`. Positioning notes for marketing-style work live in `.agents/product-marketing-context.md`.
 
@@ -19,7 +19,7 @@ npm run test:e2e
 `npm run setup` runs end-to-end with no prompts:
 
 1. `docker compose up -d --wait` — starts a local Midnight devnet (node, indexer, proof-server) and blocks until all three pass their healthchecks.
-2. `npm run compile` — compiles `contracts/hello-world.compact` to `contracts/managed/hello-world/`.
+2. `npm run compile` — compiles `contracts/veil.compact` to `contracts/managed/veil/`.
 3. `npm run deploy` — derives the genesis-seed wallet (NIGHT pre-minted), registers UTXOs for DUST generation, deploys the contract, writes `.midnight-state.json`.
 
 `npm run test:e2e` reconnects to the deployed contract and reads its ledger state. Exits 0 if the contract is live and indexable.
@@ -117,6 +117,7 @@ suffix — they apply to whichever network is active for the run):
 | `MIDNIGHT_FAUCET_URL` | Override the faucet URL printed during setup. |
 | `MIDNIGHT_PROOF_SERVER_URL` | Override the proof server URL — set to a public proof server (e.g. `https://lace-proof-pub.preview.midnight.network`) to skip running one locally. |
 | `MIDNIGHT_FAUCET_TIMEOUT_MS` | Faucet poll budget in milliseconds (default 600000 = 10 min). |
+| `VEIL_CONTRACT_ADDRESS` | Optional hex contract address for the Next.js indexer read path when `.midnight-state.json` is missing (for example CI or a remote indexer smoke test). |
 
 By default all networks use the **local** proof server. Public proof
 servers exist (see the env override above) but the local default keeps
@@ -148,9 +149,9 @@ Your preview/preprod wallet seeds and deploy addresses stay in
 
 ```
 veil/
-├── app/                        # Next.js App Router UI
+├── app/                        # Next.js App Router UI + `app/api/veil-ledger` indexer snapshot
 ├── contracts/
-│   └── hello-world.compact     # Compact source (tutorial-shaped scaffold)
+│   └── veil.compact            # Veil payroll slice (public ledger fields + placeholder circuits)
 ├── scripts/
 │   ├── setup.ts                # orchestrator for `npm run setup`
 │   ├── deploy.ts               # deploy the contract

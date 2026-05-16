@@ -1,9 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
+
+import { VeilLedgerStrip } from "../components/VeilLedgerStrip";
 
 export const metadata: Metadata = {
   title: "Employee",
 };
+
+function LedgerFallback() {
+  return (
+    <aside className="rounded-xl border border-dashed border-(--color-edge) bg-(--color-canvas-elevated) p-5 text-sm text-(--color-ink-muted)">
+      Loading on-chain snapshot from the indexer…
+    </aside>
+  );
+}
 
 export default function EmployeePage() {
   return (
@@ -18,9 +29,16 @@ export default function EmployeePage() {
         </p>
         <h1 className="text-3xl font-medium tracking-tight">Employee payslip view</h1>
         <p className="text-(--color-ink-muted)">
-          You should see verification state next to anything sensitive. This shell keeps the layout honest while wallet
-          auth and decryption catch up.
+          Payslip decryption and per-employee proofs are not in this build. You should still see verification state next
+          to anything sensitive once it exists. The shared ledger read below is the same public slice you can trust for
+          batch counters and status text until a wallet flow lands.
         </p>
+      </div>
+
+      <div className="mt-10 max-w-3xl">
+        <Suspense fallback={<LedgerFallback />}>
+          <VeilLedgerStrip />
+        </Suspense>
       </div>
 
       <div className="mt-12 max-w-xl rounded-xl border border-(--color-edge) bg-(--color-canvas-elevated) p-6">
@@ -30,12 +48,13 @@ export default function EmployeePage() {
             <p className="mt-2 text-lg font-medium text-(--color-ink)">No payslip loaded</p>
           </div>
           <span className="rounded-full border border-(--color-edge) px-3 py-1 text-xs text-(--color-ink-muted)">
-            Verification: n/a
+            Verification: stub
           </span>
         </div>
         <p className="mt-4 text-sm leading-relaxed text-(--color-ink-muted)">
-          When data exists, this card holds amount, pay date, and a compact receipt anchor. If decryption is not ready,
-          the copy should say that plainly.
+          Amounts and dates stay out of this demo until we ship encrypted detail. If decryption is not ready, we say so
+          in copy instead of implying a silent failure. For now, treat the indexer panel above as the honest signal for
+          public batch metadata only.
         </p>
       </div>
     </div>

@@ -56,11 +56,11 @@ async function main() {
 
   // 2. Build wallet (genesis seed) and providers
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const zkConfigPath = path.resolve(__dirname, '..', 'contracts', 'managed', 'hello-world');
+  const zkConfigPath = path.resolve(__dirname, '..', 'contracts', 'managed', 'veil');
   const contractPath = path.join(zkConfigPath, 'contract', 'index.js');
   if (!fs.existsSync(contractPath)) fail('Compiled contract missing — run `npm run compile`.');
-  const HelloWorld = await import(pathToFileURL(contractPath).href);
-  const compiledContract = CompiledContract.make('hello-world', HelloWorld.Contract).pipe(
+  const Veil = await import(pathToFileURL(contractPath).href);
+  const compiledContract = CompiledContract.make('veil', Veil.Contract).pipe(
     CompiledContract.withVacantWitnesses,
     CompiledContract.withCompiledFileAssets(zkConfigPath),
   );
@@ -111,7 +111,7 @@ async function main() {
 
   const providers = {
     privateStateProvider: levelPrivateStateProvider({
-      privateStateStoreName: 'hello-world-state',
+      privateStateStoreName: 'veil-state',
       accountId: unshieldedKeystore.getBech32Address().toString(),
       // SDK requires ≥16 chars. e2e-check is read-only so we don't expose
       // the env-var override here — match the deploy script's local-devnet default.
@@ -144,7 +144,13 @@ async function main() {
     fail(`queryContractState returned null for ${deployment.address}`);
   }
 
+  const ledgerPreview = JSON.stringify(
+    onChainState,
+    (_k, v) => (typeof v === 'bigint' ? v.toString() : v),
+    2,
+  );
   console.log(`✅ e2e-check passed`);
+  console.log(`   ledger (truncated): ${ledgerPreview.slice(0, 800)}${ledgerPreview.length > 800 ? '…' : ''}`);
   console.log(`   contractAddress: ${deployment.address}`);
   console.log(`   network:         ${network}`);
 
