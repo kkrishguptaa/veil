@@ -45,7 +45,7 @@ export default function AuditPage() {
       <div className="mt-12 grid gap-8 lg:grid-cols-2">
         <div className="rounded-xl border border-(--color-edge) bg-(--color-canvas-elevated) p-6">
           <h2 className="text-sm font-medium uppercase tracking-wide text-(--color-ink-muted)">Trust boundaries</h2>
-          <ul className="mt-4 list-inside list-disc space-y-2 text-sm leading-relaxed text-(--color-ink-muted)">
+          <ul className="mt-4 list-outside list-disc space-y-2 pl-5 text-sm leading-relaxed text-(--color-ink-muted)">
             <li>
               <span className="font-medium text-(--color-ink)">Indexer:</span> you are reading Midnight indexer output
               the operator configured for this demo — not a self-signed PDF from HR.

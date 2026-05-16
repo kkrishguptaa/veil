@@ -23,6 +23,13 @@ export default function HomePage() {
           Veil is a demo of confidential payroll: employers run batches, employees keep meaningful receipts, and auditors
           check proofs and aggregates instead of begging HR for another export.
         </p>
+        <p className="text-sm leading-relaxed text-(--color-ink-muted) md:text-base">
+          <span className="font-medium text-(--color-ink)">Live in this repo:</span> the local devnet loop,{" "}
+          <code className="font-mono text-xs text-(--color-ink)">contracts/veil.compact</code>, indexer-backed public
+          ledger reads, and placeholder on-chain actions that only move public counters.{" "}
+          <span className="font-medium text-(--color-ink)">Still roadmap:</span> private per-employee salary state,
+          production tax engines, and bank settlement.
+        </p>
         <div className="flex flex-wrap gap-3 pt-2">
           <a
             className="rounded-lg bg-(--color-accent) px-5 py-2.5 text-sm font-medium text-(--color-canvas) transition hover:bg-(--color-accent-hover)"

@@ -4,7 +4,17 @@
 
 This repository is the hackathon scaffold: a working **Compact** contract path (`veil` payroll slice), **devnet** scripts, and a **Next.js** front end for the employer, employee, and auditor story.
 
-Domain language lives in `CONTEXT.md`. Positioning notes for marketing-style work live in `.agents/product-marketing-context.md`.
+Domain language lives in `CONTEXT.md`. Positioning notes for marketing-style work live in `.agents/product-marketing-context.md`. Specification index: [`docs/product/spec-index.md`](docs/product/spec-index.md).
+
+## Trust model (plain language)
+
+Veil separates three ideas so the pitch stays honest:
+
+1. **Obligation proofs on Midnight** anchor what the Compact contract and proofs commit to (for example, public counters and disclosed strings in the current demo slice).
+2. **Settlement** (moving spendable value, bank rails, tax remittance) is **not** implied by a proof-only demo. If settlement is not wired, we say so.
+3. **Regulatory or HR-facing bundles** are selective-disclosure artifacts and process, not “whatever the indexer returns by default.” The auditor exports in this repo intentionally wrap **public** anchors plus trust framing.
+
+The longer-form trust and policy discussion lives in [`docs/prd/confidential-payroll.md`](docs/prd/confidential-payroll.md).
 
 ## Quick start
 
