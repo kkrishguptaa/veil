@@ -38,7 +38,7 @@ Midnight gives you a place to put **private state** and **proofs** in the same a
 | Objection | Response |
 | --- | --- |
 | "Is this production payroll?" | No. It is a scaffold and demo narrative. Tax and banking are out of scope until explicitly built. |
-| "Is my salary on chain?" | Not in cleartext in the target design. Today the repo still uses the hello-world contract to prove the toolchain; payroll circuits land in a follow-on issue. |
+| "Is my salary on chain?" | Not in cleartext in the target design. Today the repo ships the **Veil** Compact slice with **public** ledger placeholders plus real indexer reads; private compensation state is a follow-on milestone. |
 | "Is the devnet seed safe?" | Only for local throwaway value. Read the README warning before touching public networks. |
 
 ## Customer language to prefer
@@ -47,7 +47,7 @@ confidential payroll, selective disclosure, verifiable batch, receipt, proof, em
 
 ## Words to avoid for now
 
-StealthPay (old working title), "AI payroll," "fully automated tax," "mainnet ready," "bank grade" without the actual rails.
+Obsolete working titles or hype phrases ("AI payroll," "fully automated tax," "mainnet ready," "bank grade") without the actual rails. The product name is **Veil** everywhere user-facing.
 
 ## Brand voice
 
