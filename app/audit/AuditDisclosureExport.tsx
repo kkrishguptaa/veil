@@ -6,10 +6,11 @@ import {
   buildVeilPublicReceiptPayload,
   serializeVeilPublicReceipt,
   sha256HexUtf8,
+  type VeilLedgerApiError,
   type VeilLedgerApiOk,
 } from "@/lib/veil/veil-public-receipt";
 
-type LedgerGet = VeilLedgerApiOk | { ok: false; message?: string };
+type LedgerGet = VeilLedgerApiOk | VeilLedgerApiError;
 
 export function AuditDisclosureExport() {
   const [msg, setMsg] = useState<string | null>(null);
@@ -20,7 +21,11 @@ export function AuditDisclosureExport() {
       const res = await fetch("/api/veil-ledger");
       const data = (await res.json()) as LedgerGet;
       if (!data.ok) {
-        setMsg(data.message || "Indexer unavailable — start local devnet before exporting.");
+        const extra =
+          data.recoverySteps?.length && data.recoverySteps.length > 0
+            ? ` ${data.recoverySteps.join(" · ")}`
+            : "";
+        setMsg((data.message || "Indexer unavailable — start local devnet before exporting.") + extra);
         return;
       }
       const payload = buildVeilPublicReceiptPayload(data);
@@ -65,7 +70,11 @@ export function AuditDisclosureExport() {
       const res = await fetch("/api/veil-ledger");
       const data = (await res.json()) as LedgerGet;
       if (!data.ok) {
-        setMsg(data.message || "Indexer unavailable — start local devnet before exporting.");
+        const extra =
+          data.recoverySteps?.length && data.recoverySteps.length > 0
+            ? ` ${data.recoverySteps.join(" · ")}`
+            : "";
+        setMsg((data.message || "Indexer unavailable — start local devnet before exporting.") + extra);
         return;
       }
       const payload = buildVeilPublicReceiptPayload(data);

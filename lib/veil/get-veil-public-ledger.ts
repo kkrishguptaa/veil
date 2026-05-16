@@ -4,6 +4,7 @@ import { WebSocket } from 'ws';
 
 import { getDeployment, resolveNetwork, type NetworkId } from '@/scripts/network';
 import { toJsonSafe } from '@/lib/veil/json-safe';
+import { recoveryStepsForLedgerCode } from '@/lib/veil/veil-ledger-recovery';
 
 export type VeilLedgerResult =
   | {
@@ -11,6 +12,8 @@ export type VeilLedgerResult =
       network: NetworkId;
       contractAddress: string;
       ledger: Record<string, unknown>;
+      /** Always empty on success; present for a stable API envelope with error paths. */
+      recoverySteps: [];
     }
   | {
       ok: false;
@@ -18,6 +21,7 @@ export type VeilLedgerResult =
       code: 'no_deployment' | 'indexer_unreachable' | 'not_indexed';
       message: string;
       contractAddress?: string;
+      recoverySteps: string[];
     };
 
 function normalizeHexAddress(raw: string): string {
@@ -43,12 +47,14 @@ export async function getVeilPublicLedger(opts: { cwd?: string } = {}): Promise<
 
   const contractAddress = resolveContractAddress(network, cwd);
   if (!contractAddress) {
+    const code = 'no_deployment' as const;
     return {
       ok: false,
       network,
-      code: 'no_deployment',
+      code,
       message:
         'No contract address on file. Run `npm run setup` on this machine, or set VEIL_CONTRACT_ADDRESS to a hex deploy address.',
+      recoverySteps: recoveryStepsForLedgerCode(code),
     };
   }
 
@@ -57,25 +63,29 @@ export async function getVeilPublicLedger(opts: { cwd?: string } = {}): Promise<
   try {
     const raw = await provider.queryContractState(contractAddress);
     if (!raw) {
+      const code = 'not_indexed' as const;
       return {
         ok: false,
         network,
-        code: 'not_indexed',
+        code,
         contractAddress,
         message:
           'Indexer returned no contract state yet. If you just deployed, wait a block and refresh. Confirm Docker devnet is up.',
+        recoverySteps: recoveryStepsForLedgerCode(code),
       };
     }
     const ledger = toJsonSafe(raw) as Record<string, unknown>;
-    return { ok: true, network, contractAddress, ledger };
+    return { ok: true, network, contractAddress, ledger, recoverySteps: [] };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
+    const code = 'indexer_unreachable' as const;
     return {
       ok: false,
       network,
-      code: 'indexer_unreachable',
+      code,
       contractAddress,
       message: msg,
+      recoverySteps: recoveryStepsForLedgerCode(code),
     };
   }
 }

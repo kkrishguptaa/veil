@@ -5,6 +5,15 @@ import { useCallback, useEffect, useState, useTransition } from "react";
 
 type Flash = { kind: "idle" | "loading" | "success" | "error"; message: string };
 
+function formatEmployerApiError(
+  data: { error?: string; recoverySteps?: string[] },
+  status: number,
+): string {
+  const base = data.error || `Request failed (${status}).`;
+  if (!data.recoverySteps?.length) return base;
+  return `${base}\n\n${data.recoverySteps.map((s, i) => `${i + 1}. ${s}`).join("\n")}`;
+}
+
 function authHeaders(token: string): HeadersInit {
   const t = token.trim();
   return t ? { Authorization: `Bearer ${t}` } : {};
@@ -29,11 +38,11 @@ export function EmployerSubmitPanel() {
           method: "POST",
           headers: { ...authHeaders(apiTokenField) },
         });
-        const data = (await res.json()) as { ok?: boolean; error?: string; detail?: string };
+        const data = (await res.json()) as { ok?: boolean; error?: string; detail?: string; recoverySteps?: string[] };
         if (!res.ok || !data.ok) {
           setFlash({
             kind: "error",
-            message: data.error || `Request failed (${res.status}).`,
+            message: formatEmployerApiError(data, res.status),
           });
           return;
         }
@@ -58,11 +67,17 @@ export function EmployerSubmitPanel() {
           headers: { "Content-Type": "application/json", ...authHeaders(apiTokenField) },
           body: JSON.stringify(trimmed ? { batchHash: trimmed } : {}),
         });
-        const data = (await res.json()) as { ok?: boolean; error?: string; detail?: string; batchHash?: string };
+        const data = (await res.json()) as {
+          ok?: boolean;
+          error?: string;
+          detail?: string;
+          batchHash?: string;
+          recoverySteps?: string[];
+        };
         if (!res.ok || !data.ok) {
           setFlash({
             kind: "error",
-            message: data.error || `Request failed (${res.status}).`,
+            message: formatEmployerApiError(data, res.status),
           });
           return;
         }
@@ -167,7 +182,7 @@ export function EmployerSubmitPanel() {
         <p
           className={`mt-5 text-sm leading-relaxed ${
             flash.kind === "error"
-              ? "text-(--color-danger)"
+              ? "whitespace-pre-wrap text-(--color-danger)"
               : flash.kind === "success"
                 ? "text-(--color-success)"
                 : "text-(--color-ink-muted)"

@@ -24,27 +24,15 @@ export async function VeilLedgerStrip() {
               · Contract: <span className="font-mono text-(--color-ink)">{shortAddr(result.contractAddress)}</span>
             </>
           ) : null}
+          {" "}
+          · Code: <span className="font-mono text-(--color-ink)">{result.code}</span>
         </p>
-        {result.code === "no_deployment" ? (
-          <p className="mt-3 text-xs">
-            Local path: run <code className="rounded bg-(--color-canvas) px-1 py-0.5 font-mono">docker compose up -d --wait</code> then{" "}
-            <code className="rounded bg-(--color-canvas) px-1 py-0.5 font-mono">npm run setup</code>. Optional: set{" "}
-            <code className="rounded bg-(--color-canvas) px-1 py-0.5 font-mono">VEIL_CONTRACT_ADDRESS</code> to a hex address.
-          </p>
-        ) : null}
-        {result.code === "indexer_unreachable" ? (
-          <p className="mt-3 text-xs">
-            Confirm the Midnight indexer in Docker is up on the port from your active network config, then retry. Quick
-            check: <code className="rounded bg-(--color-canvas) px-1 py-0.5 font-mono">docker compose ps</code> and{" "}
-            <code className="rounded bg-(--color-canvas) px-1 py-0.5 font-mono">npm run network</code>.
-          </p>
-        ) : null}
-        {result.code === "not_indexed" ? (
-          <p className="mt-3 text-xs">
-            If you just deployed, wait a moment for the indexer to catch up. If it persists, redeploy with{" "}
-            <code className="rounded bg-(--color-canvas) px-1 py-0.5 font-mono">npm run setup</code> and confirm{" "}
-            <code className="rounded bg-(--color-canvas) px-1 py-0.5 font-mono">npm run test:e2e</code> passes.
-          </p>
+        {result.recoverySteps.length > 0 ? (
+          <ol className="mt-4 list-decimal space-y-1 pl-5 text-xs leading-relaxed text-(--color-ink-muted)">
+            {result.recoverySteps.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
         ) : null}
       </aside>
     );

@@ -6,10 +6,11 @@ import {
   buildVeilPublicReceiptPayload,
   serializeVeilPublicReceipt,
   sha256HexUtf8,
+  type VeilLedgerApiError,
   type VeilLedgerApiOk,
 } from "@/lib/veil/veil-public-receipt";
 
-type LedgerGet = VeilLedgerApiOk | { ok: false; message?: string; code?: string };
+type LedgerGet = VeilLedgerApiOk | VeilLedgerApiError;
 
 function parseCount(v: unknown): bigint {
   if (typeof v === "bigint") return v;
@@ -30,6 +31,7 @@ export function EmployeeReceiptPanel() {
   const [lastHash, setLastHash] = useState<string | null>(null);
   const [snapshot, setSnapshot] = useState<VeilLedgerApiOk | null>(null);
   const [snapErr, setSnapErr] = useState<string | null>(null);
+  const [snapRecovery, setSnapRecovery] = useState<string[] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -41,14 +43,17 @@ export function EmployeeReceiptPanel() {
         if (!data.ok) {
           setSnapshot(null);
           setSnapErr(data.message || "Indexer read failed.");
+          setSnapRecovery(data.recoverySteps?.length ? data.recoverySteps : null);
           return;
         }
         setSnapErr(null);
+        setSnapRecovery(null);
         setSnapshot(data);
       } catch {
         if (!cancelled) {
           setSnapshot(null);
           setSnapErr("Could not reach `/api/veil-ledger`.");
+          setSnapRecovery(["Confirm `npm run dev` is running for this site.", "If the dev server is up, check the Network tab for a 500 from `/api/veil-ledger` and read the JSON error body."]);
         }
       }
     })();
@@ -67,7 +72,11 @@ export function EmployeeReceiptPanel() {
       const res = await fetch("/api/veil-ledger");
       const data = (await res.json()) as LedgerGet;
       if (!data.ok) {
-        setNote(data.message || "Indexer read failed. Start Docker devnet and run `npm run setup`, then refresh.");
+        const extra =
+          data.recoverySteps?.length && data.recoverySteps.length > 0
+            ? ` ${data.recoverySteps[0]}`
+            : "";
+        setNote((data.message || "Indexer read failed.") + extra);
         setLastHash(null);
         return;
       }
@@ -136,6 +145,13 @@ export function EmployeeReceiptPanel() {
               ? `Network ${snapshot.network} · batch_count ${String(snapshot.ledger.batch_count ?? "—")} · status_message ${String(snapshot.ledger.status_message || "—")}`
               : "Loading indexer snapshot…"}
         </p>
+        {snapErr && snapRecovery?.length ? (
+          <ol className="mt-3 list-decimal space-y-1 pl-5 text-xs leading-relaxed text-(--color-ink-muted)">
+            {snapRecovery.map((s) => (
+              <li key={s}>{s}</li>
+            ))}
+          </ol>
+        ) : null}
       </div>
 
       <div className="max-w-2xl space-y-6 rounded-xl border border-(--color-edge) bg-(--color-canvas-elevated) p-6">
