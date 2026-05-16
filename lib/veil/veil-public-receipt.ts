@@ -7,6 +7,17 @@ export type VeilLedgerApiOk = {
   network: string;
   contractAddress: string;
   ledger: Record<string, unknown>;
+  /** Present on `/api/veil-ledger` for a stable envelope; always empty when the indexer read succeeded. */
+  recoverySteps?: [];
+};
+
+export type VeilLedgerApiError = {
+  ok: false;
+  network: string;
+  code: string;
+  message: string;
+  contractAddress?: string;
+  recoverySteps: string[];
 };
 
 export function buildVeilPublicReceiptPayload(result: VeilLedgerApiOk) {
