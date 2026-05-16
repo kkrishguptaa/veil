@@ -6,7 +6,7 @@ Single-page glossary for issues, PRs, and code. Extend this file when terminolog
 
 **Veil** is a confidential payroll experience on **Midnight Network**. Employers run payroll in a way that does not broadcast individual salaries to the world. Employees still get evidence they were paid. Auditors can work from proofs and aggregates instead of raw HR spreadsheets.
 
-The repository currently ships the **toolchain vertical** (local devnet, compile, deploy, read-back smoke test) plus a **web shell** for the storyboard routes. The on-chain payroll contract is still a roadmap item on top of the tutorial-shaped `hello-world` Compact module.
+The repository currently ships the **toolchain vertical** (local devnet, compile, deploy, read-back smoke test), a **Next.js** UI with live indexer reads for public Veil ledger fields, and an incremental **Compact** payroll slice (`contracts/veil.compact`) where private payout logic is still roadmap work.
 
 ## Glossary
 
