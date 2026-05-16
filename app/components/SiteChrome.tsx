@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const nav = [
   { href: "/", label: "Overview" },
@@ -12,6 +13,8 @@ const nav = [
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
 
   return (
     <header className="border-b border-(--color-edge) bg-(--color-canvas)">
@@ -21,7 +24,7 @@ export function SiteHeader() {
         </Link>
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-(--color-ink-muted)" aria-label="Primary">
           {nav.map((item) => {
-            const active = pathname === item.href;
+            const active = hydrated && pathname === item.href;
             return (
               <Link
                 key={item.href}
