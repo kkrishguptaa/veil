@@ -35,7 +35,7 @@ export default function EmployeePage() {
         </p>
       </div>
 
-      <div className="mt-10 max-w-3xl">
+      <div className="mt-10 max-w-6xl">
         <Suspense fallback={<LedgerFallback />}>
           <VeilLedgerStrip />
         </Suspense>
